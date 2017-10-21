@@ -110,6 +110,8 @@ tags
 # Ignore web dir
 /web
 
+*.o
+
 #include
 !/tools/cocos2d-console/console/bin/
 !/plugin-x/plugin-x_ios.xcworkspace/
