@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<cstring>
+#include<JNIHelper.h>
 
 // 环境变量PATH在windows下和linux下的分割符定义
 #ifdef _WIN32
@@ -52,6 +53,63 @@ std::string jstring2str(JNIEnv* env, jstring jstr)
 
 int main(void)
 {
+
+JavaVMOption options[1];
+	JNIEnv *env;
+	JavaVM *jvm;
+	JavaVMInitArgs vm_args;
+
+	long status;
+	jclass cls;
+	jmethodID mid;
+	jfieldID fid;
+	jobject obj;
+
+	options[0].optionString = "-Djava.class.path=.";
+	memset(&vm_args, 0, sizeof(vm_args));
+	vm_args.version = JNI_VERSION_1_8;
+	vm_args.nOptions = 1;
+	vm_args.options = options;
+
+	// 启动虚拟机
+	status = JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
+	JniHelper::setJavaVM(jvm);
+	 cls = env->FindClass("r/testObj");
+ std::string ss = "dwsa";
+int i = 10;
+jstring s = str2jstring(env , ss.c_str());
+jint ii= (jint)i;
+mid =  env->GetMethodID(cls, "<init>", "(Ljava/lang/String;I)V");
+obj = env->NewObject(cls, mid,s,ii);
+//int  ift = JniHelper::test();
+
+jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
+
+if(obj2 !=0 ){
+printf("aaaaaaaaaaaaaa\n");
+}
+/*
+  mid = env->GetMethodID(cls, "out", "()V;");
+			if (mid != 0 && obj != 0)
+			{
+				jstring result = (jstring)env->CallObjectMethod(obj2, mid);
+				//if(result !=  null){
+                    const char* str = env->GetStringUTFChars(result, 0);
+                    printf("Result of sayHello: %s\n", str);
+               //     }
+				env->ReleaseStringUTFChars(result, 0);
+			}
+			*/
+
+		jvm->DestroyJavaVM();
+		return 0;
+
+//jclass cls2 = env->FindClass("Sample2");
+
+}
+/*
+int main(void)
+{
 	JavaVMOption options[1];
 	JNIEnv *env;
 	JavaVM *jvm;
@@ -75,7 +133,7 @@ int main(void)
 	if (status != JNI_ERR)
 	{
 
-        /*
+
 		// 先获得class对象
 		cls = env->FindClass("Sample2");
 		if (cls != 0)
@@ -124,7 +182,7 @@ int main(void)
 				env->ReleaseStringUTFChars(result, 0);
 			}
 		}
-		*/
+
 
         cls = env->FindClass("r/testObj");
 //jclass cls2 = env->FindClass("Sample2");
@@ -152,11 +210,6 @@ int main(void)
                //     }
 				env->ReleaseStringUTFChars(result, 0);
 			}
-
-
-
-
-
 		jvm->DestroyJavaVM();
 		return 0;
 	}
@@ -166,3 +219,4 @@ int main(void)
 		return -1;
 	}
 }
+*/

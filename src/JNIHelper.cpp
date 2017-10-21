@@ -1,7 +1,7 @@
-#include "JniHelper.h"
+#include "JNIHelper.h"
 #include <string.h>
 #include <pthread.h>
-#include <StringUtils.hpp>
+#include<iostream>
 
 //#include "base/ccUTF8.h"
 
@@ -63,7 +63,7 @@ void _detachCurrentThread(void* a) {
     JNIEnv* JniHelper::cacheEnv(JavaVM* jvm) {
         JNIEnv* _env = nullptr;
         // get jni environment
-        jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_4);
+        jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_8);
 
         switch (ret) {
         case JNI_OK :
@@ -174,6 +174,8 @@ void _detachCurrentThread(void* a) {
         return true;
     }
 
+
+
     bool JniHelper::getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
                                                      const char *className,
                                                      const char *methodName,
@@ -183,6 +185,7 @@ void _detachCurrentThread(void* a) {
             (nullptr == paramCode)) {
             return false;
         }
+
 
         JNIEnv *env = JniHelper::getEnv();
         if (!env) {
@@ -202,6 +205,7 @@ void _detachCurrentThread(void* a) {
             env->ExceptionClear();
             return false;
         }
+
 
         methodinfo.classID = classID;
         methodinfo.env = env;
@@ -262,7 +266,7 @@ void _detachCurrentThread(void* a) {
     }
     */
 
-jstring string2jstring(JNIEnv* env,const char* pat)
+jstring  JniHelper::string2jstring(JNIEnv* env,const char* pat)
 {
     //定义java String类 strClass
     jclass strClass = (env)->FindClass("Ljava/lang/String;");
@@ -302,13 +306,15 @@ std::string JniHelper:: jstring2string(jstring jstr)
 };
 
     jstring JniHelper::convert(LocalRefMapType& localRefs, JniMethodInfo& t, const char* x) {
-        jstring ret =string2jstring(t.env, x);
+        jstring ret =JniHelper::string2jstring(t.env, x);
         localRefs[t.env].push_back(ret);
         return ret;
     }
 
     jstring JniHelper::convert(LocalRefMapType& localRefs, JniMethodInfo& t, const std::string& x) {
-        return convert(localRefs, t, x.c_str());
+        jstring ret =JniHelper::string2jstring(t.env, x.c_str());
+        localRefs[t.env].push_back(ret);
+        return ret;
     }
 
     void JniHelper::deleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs) {
@@ -325,6 +331,8 @@ std::string JniHelper:: jstring2string(jstring jstr)
     void JniHelper::reportError(const std::string& className, const std::string& methodName, const std::string& signature) {
     //    LOGE("Failed to find static java method. Class name: %s, method name: %s, signature: %s ",  className.c_str(), methodName.c_str(), signature.c_str());
     }
+
+
 
 //namespace cocos2d
 

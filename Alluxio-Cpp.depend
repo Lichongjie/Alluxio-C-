@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1508492426 source:/home/innkp/Alluxio-Cpp/main.cpp
+	<jni.h>
+	<string>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<JNIHelper.h>
+
+1500700031 /home/innkp/jdk1.8.0_144/include/jni.h
+	<stdio.h>
+	<stdarg.h>
+	"jni_md.h"
+
+1500700031 /home/innkp/jdk1.8.0_144/include/linux/jni_md.h
+
+1508488316 source:/home/innkp/Alluxio-Cpp/src/JNIHelper.cpp
+	"JNIHelper.h"
+	<string.h>
+	<pthread.h>
+
+1508551089 /home/innkp/Alluxio-Cpp/include/JNIHelper.h
+	<jni.h>
+	<string>
+	<vector>
+	<unordered_map>
+	<functional>
+	<cstdlib>
+	<string.h>
+
+1508490612 source:/home/innkp/Alluxio-Cpp/test.cpp
+	<jni.h>
+	<string>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<iostream>
+
