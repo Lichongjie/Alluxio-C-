@@ -153,9 +153,16 @@ void _detachCurrentThread(void* a) {
           //  LOGE("Failed to get JNIEnv");
             return false;
         }
+ //printf("Failergvewrves %s", className);
 
-        jclass classID = _getClassID(className);
+    //   jclass classID = _getClassID(className);
+       //        std::cout<<"cwe1"<<std::endl;
+
+       jclass classID = env->FindClass(className);
+
         if (! classID) {
+        std::cout<<"Failed to find class "<< className<<std::endl;
+
       //      LOGE("Failed to find class %s", className);
             env->ExceptionClear();
             return false;
@@ -200,12 +207,14 @@ void _detachCurrentThread(void* a) {
         }
 
         jmethodID methodID = env->GetMethodID(classID, methodName, paramCode);
+      if(methodID == 0) {
+
+      }
         if (! methodID) {
          //   LOGE("Failed to find method id of %s", methodName);
             env->ExceptionClear();
             return false;
         }
-
 
         methodinfo.classID = classID;
         methodinfo.env = env;

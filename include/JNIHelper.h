@@ -49,37 +49,42 @@ public:
     static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
-    static void callVoidMethod(const std::string& className,
+    static void callVoidMethod(jobject& obj, const std::string& className,
                                      const std::string& methodName,
                                      Ts... xs) {
+                                     std::cout<<methodName <<std::endl;
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+
             LocalRefMapType localRefs;
-            t.env->CallVoidMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
+
+            t.env->CallVoidMethod(obj, t.methodID, convert(localRefs, t, xs)...);
+
             t.env->DeleteLocalRef(t.classID);
             deleteLocalRefs(t.env, localRefs);
         } else {
             reportError(className, methodName, signature);
         }
     }
-
-    template <typename... Ts>
-    static jobject createObjectMethod(const std::string& className, Ts... xs) {
-         jobject res;
+        template <typename... Ts>
+    static void callVoidMethod(const std::string& signature, jobject& obj, const std::string& className,
+                                     const std::string& methodName,
+                                     Ts... xs) {
         JniMethodInfo t;
-        std::string methodName = "<init>";
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+
+        //std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
-            res = env->NewObject(t.classID, t.methodID,convert(localRefs, t, xs)...);
+
+            t.env->CallVoidMethod(obj, t.methodID, convert(localRefs, t, xs)...);
+
             t.env->DeleteLocalRef(t.classID);
             deleteLocalRefs(t.env, localRefs);
         } else {
             reportError(className, methodName, signature);
-            return 0;
         }
-        return res;
+
     }
 
         template <typename... Ts>
@@ -101,11 +106,29 @@ public:
 
         return res;
     }
+ template <typename... Ts>
+    static jobject createObjectMethod(const std::string& className, Ts... xs) {
+         jobject res;
+        JniMethodInfo t;
+        std::string methodName = "<init>";
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
 
+        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+
+            LocalRefMapType localRefs;
+            res = t.env->NewObject(t.classID, t.methodID,convert(localRefs, t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env, localRefs);
+        } else {
+            reportError(className, methodName, signature);
+            return 0;
+        }
+        return res;
+    }
 
     template <typename... Ts>
     static bool callBooleanMethod(jobject& obj, const std::string& className,
-                                        const std::string& methodName,
+                                        const std::string& methodName,const std::string& returnClassName,
                                         Ts... xs) {
         jboolean jret = JNI_FALSE;
        JniMethodInfo t;
@@ -119,6 +142,27 @@ public:
             reportError(className, methodName, signature);
         }
         return (jret == JNI_TRUE);
+    }
+
+     template <typename... Ts>
+    static jobject callStaticObjectMethod(const std::string& className,
+                                   const std::string& methodName, const std::string& returnClassName,
+                                   Ts... xs) {
+
+        jobject ret;
+        JniMethodInfo t;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+
+        if (JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+
+            LocalRefMapType localRefs;
+            ret = t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env, localRefs);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
     }
 
 static jboolean ToJBool(bool value) {
@@ -191,6 +235,7 @@ private:
     static std::string getJNISignature(const std::string&) {
         return "Ljava/lang/String;";
     }
+
 
     template <typename T>
     static std::string getJNISignature(T x) {

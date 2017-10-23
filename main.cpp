@@ -65,7 +65,9 @@ JavaVMOption options[1];
 	jfieldID fid;
 	jobject obj;
 
-	options[0].optionString = "-Djava.class.path=.";
+//options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
+	options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/server/target/alluxio-assembly-server-1.6.1-SNAPSHOT-jar-with-dependencies.jar";
+	//options[1].optionString = "-Djava.library.path=/"
 	memset(&vm_args, 0, sizeof(vm_args));
 	vm_args.version = JNI_VERSION_1_8;
 	vm_args.nOptions = 1;
@@ -74,20 +76,19 @@ JavaVMOption options[1];
 	// 启动虚拟机
 	status = JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
 	JniHelper::setJavaVM(jvm);
-	 cls = env->FindClass("r/testObj");
- std::string ss = "dwsa";
-int i = 10;
-jstring s = str2jstring(env , ss.c_str());
-jint ii= (jint)i;
-mid =  env->GetMethodID(cls, "<init>", "(Ljava/lang/String;I)V");
-obj = env->NewObject(cls, mid,s,ii);
+
 //int  ift = JniHelper::test();
+//try {
+     //  jclass classID = env->FindClass("alluxio/client/file/FileSystem$Factory");
 
-jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
 
-if(obj2 !=0 ){
-printf("aaaaaaaaaaaaaa\n");
-}
+jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
+std::string path = "/hehe";
+jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
+//jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
+JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/client/file/FileSystem","createDirectory", alluxiURI);
+jvm->DestroyJavaVM();
+		return 0;
 /*
   mid = env->GetMethodID(cls, "out", "()V;");
 			if (mid != 0 && obj != 0)
@@ -101,8 +102,7 @@ printf("aaaaaaaaaaaaaa\n");
 			}
 			*/
 
-		jvm->DestroyJavaVM();
-		return 0;
+
 
 //jclass cls2 = env->FindClass("Sample2");
 
