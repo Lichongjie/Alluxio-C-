@@ -1,11 +1,13 @@
 # depslib dependency file v1.0
-1508492426 source:/home/innkp/Alluxio-Cpp/main.cpp
+1508843018 source:/home/innkp/Alluxio-Cpp/main.cpp
 	<jni.h>
 	<string>
 	<stdio.h>
 	<stdlib.h>
 	<cstring>
 	<JNIHelper.h>
+	<sstream>
+	<iostream>
 
 1500700031 /home/innkp/jdk1.8.0_144/include/jni.h
 	<stdio.h>
@@ -14,19 +16,23 @@
 
 1500700031 /home/innkp/jdk1.8.0_144/include/linux/jni_md.h
 
-1508488316 source:/home/innkp/Alluxio-Cpp/src/JNIHelper.cpp
+1508834594 source:/home/innkp/Alluxio-Cpp/src/JNIHelper.cpp
 	"JNIHelper.h"
 	<string.h>
 	<pthread.h>
+	<iostream>
 
-1508551089 /home/innkp/Alluxio-Cpp/include/JNIHelper.h
+1508857586 /home/innkp/Alluxio-Cpp/include/JNIHelper.h
 	<jni.h>
 	<string>
 	<vector>
 	<unordered_map>
 	<functional>
 	<cstdlib>
+	<stdio.h>
 	<string.h>
+	<iostream>
+	"Exceptions.hpp"
 
 1508551408 source:/home/innkp/Alluxio-Cpp/test.cpp
 	<jni.h>
@@ -35,4 +41,53 @@
 	<stdlib.h>
 	<cstring>
 	<iostream>
+
+1508856878 source:/home/innkp/Alluxio-Cpp/src/FileInStream.cpp
+	"FileInStream.h"
+
+1508856406 /home/innkp/Alluxio-Cpp/include/FileInStream.h
+	"JNIHelper.h"
+	"Exceptions.hpp"
+
+1508856831 source:/home/innkp/Alluxio-Cpp/src/Client.cpp
+	"Client.hpp"
+
+1508856831 /home/innkp/Alluxio-Cpp/include/Client.hpp
+	"JNIHelper.h"
+	"Exceptions.hpp"
+	"Options.hpp"
+	"FileOutStream.h"
+	"FileInStream.h"
+	"Wire.hpp"
+	<list>
+	<map>
+
+1508857525 /home/innkp/Alluxio-Cpp/include/Exceptions.hpp
+	<exception>
+	<string>
+	<string.h>
+	<iostream>
+	"Exceptions.hpp"
+
+1508849451 /home/innkp/Alluxio-Cpp/include/Options.hpp
+	<string>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<JNIHelper.h>
+
+1508856913 /home/innkp/Alluxio-Cpp/include/FileOutStream.h
+	"Exceptions.hpp"
+	<JNIHelper.h>
+
+1508848893 /home/innkp/Alluxio-Cpp/include/Wire.hpp
+
+1508856406 source:/home/innkp/Alluxio-Cpp/src/FileOutStream.cpp
+	"FileOutStream.h"
+
+1508853374 /home/innkp/Alluxio-Cpp/include/Exceptions.cpp
+	<exception>
+	<iostream>
+	<string>
+	<JNIHelper.h>
 

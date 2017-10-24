@@ -4,40 +4,125 @@
 #include<cstring>
 #include<JNIHelper.h>
 
-namespace Options{
-
-/*
-
-class CreateDirectoryOptions {
-private:
-jobject* CreateDirectoryOpt;
-
+class CreateDirectoryOptions
+{
 public:
-    CreateDirectoryOptions(){
-    		//jclass cls = env->FindClass("CreateDirectoryOptions");
-            *CreateDirectoryOpt = callStaticObjectMethod("CreateDirectoryOptions", "defaults");
+    CreateDirectoryOptions() {
+
+    };
+    ~CreateDirectoryOptions()
+    {
+
+    };
+};
+
+class CreateFileOptions
+{
+public:
+    CreateFileOptions()
+    {
+
     }
-    CreateDirectoryOptions& setAllowExists(bool allowExists) {
-             *CreateDirectoryOpt =  callObjectMethod(&CreateDirectoryOpt, "setAllowExists", ToJBool(allowExists));
-             return *this;
+    ~CreateFileOptions()
+    {
+
+    }
+};
+
+class DeleteOptions
+{
+public:
+    DeleteOptions() {
+
+    }
+    ~DeleteOptions() {
+    }
+};
+
+class ExistsOptions{
+public :
+    ExistsOptions() {
+
+    }
+    ~ExistsOptions() {
+
     }
 
+};
 
-*/
+class FreeOptions {
+public:
+FreeOptions() {
+
+}
+~FreeOptions() {
+}
+};
+
+class ListStatusOptions{
+public:
+ListStatusOptions() {
+
+}
+~ListStatusOptions() {
+
+}
+};
+
+class MountOptions {
+public:
+MountOptions() {
+
+}
+~MountOptions() {
+
 }
 
+};
 
+class OpenFileOptions {
+public:
+   OpenFileOptions() {
 
+   }
+   ~OpenFileOptions() {
+   }
 
+};
 
-
-
-
-
-
-
-
-
+class RenameOptions{
+public:
+RenameOptions() {
 
 }
+~RenameOptions(){
+}
+};
+
+class SetAttributeOptions{
+public:
+SetAttributeOptions() {
+
+}
+~SetAttributeOptions() {
+
+}
+};
+
+class UnmountOptions {
+public:
+UnmountOptions() {
+
+}
+~UnmountOptions() {
+
+}
+};
+class GetStatusOptions {
+public:
+GetStatusOptions() {
+}
+~GetStatusOptions() {
+}
+};
 

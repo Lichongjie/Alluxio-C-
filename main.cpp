@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include<cstring>
 #include<JNIHelper.h>
-
+#include<sstream>
+#include <iostream>
+//#include<json.h>
+using namespace std;
 // 环境变量PATH在windows下和linux下的分割符定义
 #ifdef _WIN32
 #define PATH_SEPARATOR ';'
@@ -30,7 +33,7 @@ jstring str2jstring(JNIEnv* env,const char* pat)
 };
 
 
-std::string jstring2str(JNIEnv* env, jstring jstr)
+string jstring2str(JNIEnv* env, jstring jstr)
 {
     char*   rtn   =   NULL;
     jclass   clsstring   =   env->FindClass("java/lang/String");
@@ -46,7 +49,7 @@ std::string jstring2str(JNIEnv* env, jstring jstr)
         rtn[alen]=0;
     }
     env->ReleaseByteArrayElements(barr,ba,0);
-    std::string stemp(rtn);
+    string stemp(rtn);
     free(rtn);
     return   stemp;
 };
@@ -54,58 +57,58 @@ std::string jstring2str(JNIEnv* env, jstring jstr)
 int main(void)
 {
 
-JavaVMOption options[1];
-	JNIEnv *env;
-	JavaVM *jvm;
-	JavaVMInitArgs vm_args;
+    JavaVMOption options[1];
+    JNIEnv *env;
+    JavaVM *jvm;
+    JavaVMInitArgs vm_args;
 
-	long status;
-	jclass cls;
-	jmethodID mid;
-	jfieldID fid;
-	jobject obj;
+    long status;
+    jclass cls;
+    jmethodID mid;
+    jfieldID fid;
+    jobject obj;
 
-//options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
-	options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/server/target/alluxio-assembly-server-1.6.1-SNAPSHOT-jar-with-dependencies.jar";
-	//options[1].optionString = "-Djava.library.path=/"
-	memset(&vm_args, 0, sizeof(vm_args));
-	vm_args.version = JNI_VERSION_1_8;
-	vm_args.nOptions = 1;
-	vm_args.options = options;
+    options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
+    //options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/server/target/alluxio-assembly-server-1.6.1-SNAPSHOT-jar-with-dependencies.jar";
+    //options[1].optionString = "-Djava.library.path=/"
+    memset(&vm_args, 0, sizeof(vm_args));
+    vm_args.version = JNI_VERSION_1_8;
+    vm_args.nOptions = 1;
+    vm_args.options = options;
 
-	// 启动虚拟机
-	status = JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
-	JniHelper::setJavaVM(jvm);
+    // 启动虚拟机
+    status = JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
+    JniHelper::setJavaVM(jvm);
 
-//int  ift = JniHelper::test();
-//try {
-     //  jclass classID = env->FindClass("alluxio/client/file/FileSystem$Factory");
+    cls = env->FindClass("alluxio/Sample2");
 
+    mid = env->GetStaticMethodID(cls, "exceptionTest", "()V");
 
-jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
-std::string path = "/hehe";
-jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
-//jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
-JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/client/file/FileSystem","createDirectory", alluxiURI);
-jvm->DestroyJavaVM();
-		return 0;
-/*
-  mid = env->GetMethodID(cls, "out", "()V;");
-			if (mid != 0 && obj != 0)
-			{
-				jstring result = (jstring)env->CallObjectMethod(obj2, mid);
-				//if(result !=  null){
-                    const char* str = env->GetStringUTFChars(result, 0);
-                    printf("Result of sayHello: %s\n", str);
-               //     }
-				env->ReleaseStringUTFChars(result, 0);
-			}
-			*/
+    env->CallStaticVoidMethod(cls, mid);
 
 
 
-//jclass cls2 = env->FindClass("Sample2");
-
+    /*
+        jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
+        std::string path = "/hehehe";
+        jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
+    //jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
+        JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/client/file/FileSystem","createDirectory", alluxiURI);
+        jvm->DestroyJavaVM();
+        return 0;
+        */
+    /*
+      mid = env->GetMethodID(cls, "out", "()V;");
+    			if (mid != 0 && obj != 0)
+    			{
+    				jstring result = (jstring)env->CallObjectMethod(obj2, mid);
+    				//if(result !=  null){
+                        const char* str = env->GetStringUTFChars(result, 0);
+                        printf("Result of sayHello: %s\n", str);
+                   //     }
+    				env->ReleaseStringUTFChars(result, 0);
+    			}
+    			*/
 }
 /*
 int main(void)
