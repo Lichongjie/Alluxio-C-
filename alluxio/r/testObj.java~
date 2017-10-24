@@ -1,6 +1,0 @@
-package alluxio.r
-
-public testObj {
-	int i;
-
-}
