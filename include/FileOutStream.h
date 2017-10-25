@@ -8,9 +8,10 @@ class FileOutStream
 {
     public:
         FileOutStream();
+        FileOutStream(jobject AlluxioOutStream);
         void write(int b) throw (IOException);
-        void write(const char* b) throw (IOException);
-        void write(const char* b, int off, int len) throw (IOException);
+        void write(const unsigned char* b) throw (IOException);
+        void write(const unsigned char* b, int off, int len) throw (IOException);
         void close() throw (IOException);
 
          ~FileOutStream();
@@ -18,7 +19,7 @@ class FileOutStream
     protected:
 
     private:
-             jobject outStream;
+        jobject outStream;
         JniHelper::LocalRefMapType localRefs;
 
 };

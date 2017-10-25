@@ -5,9 +5,10 @@ FileInStream::FileInStream()
     //ctor
 }
 
-FileInStream::FileInStream(jobject& AlluxioInStream)
+FileInStream::FileInStream(jobject AlluxioInStream)
 {
-    FileInStream::inStream = AlluxioInStream;
+        FileInStream::inStream =AlluxioInStream;
+
 }
 
 FileInStream::~FileInStream()
@@ -32,7 +33,7 @@ int FileInStream::read(char* b, int off, int len)  throw (IOException)
     b =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);
 
-     JniHelper::exceptionCheck(env );
+     JniHelper::exceptionCheck( );
 
 }
 

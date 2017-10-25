@@ -5,7 +5,6 @@
 #include<string>
 #include <string.h>
 #include<iostream>
-#include "Exceptions.hpp"
 
 class JavaException {
 public:
@@ -22,7 +21,7 @@ class AlluxioException : public JavaException
 public:
     AlluxioException():JavaException("null"){};
     AlluxioException(const std::string &errorMsg) :JavaException (errorMsg) {};
-     ~AlluxioException();
+     ~AlluxioException() {};
 };
 
 class IOException :public JavaException

@@ -35,6 +35,31 @@ public:
     static JNIEnv* getEnv();
     static jobject getActivity();
 
+    static void start()
+    {
+        JNIEnv *env;
+        JavaVM *jvm;
+        JavaVMOption options[1];
+        JavaVMInitArgs vm_args;
+        //options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
+        options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
+        memset(&vm_args, 0, sizeof(vm_args));
+        vm_args.version = JNI_VERSION_1_8;
+        vm_args.nOptions = 1;
+        vm_args.options = options;
+
+        // 启动虚拟机
+        JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
+        JniHelper::setJavaVM(jvm);
+        JniHelper::cacheEnv(jvm);
+    }
+
+    static void finish()
+    {
+        getJavaVM()->DestroyJavaVM();
+
+    }
+
     static bool setClassLoaderFrom(jobject activityInstance);
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
                                     const char *className,
@@ -52,19 +77,25 @@ public:
     static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
-    static void callVoidMethod(jobject& obj, const std::string& className,
+    static void callVoidMethod(const std::string& default_signature, const jobject& obj, const std::string& className,
                                const std::string& methodName,
                                Ts... xs)
     {
         JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+        std::string signature ;
+        if(default_signature.length() != 0 )
+        {
+            signature = default_signature;
+        }
+        else
+        {
+            signature =signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+        }
+
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
-
             LocalRefMapType localRefs;
-
             t.env->CallVoidMethod(obj, t.methodID, convert(localRefs, t, xs)...);
-
             t.env->DeleteLocalRef(t.classID);
             deleteLocalRefs(t.env, localRefs);
         }
@@ -73,38 +104,22 @@ public:
             reportError(className, methodName, signature);
         }
     }
-    template <typename... Ts>
-    static void callVoidMethod(const std::string& signature, jobject& obj, const std::string& className,
-                               const std::string& methodName,
-                               Ts... xs)
-    {
-        JniMethodInfo t;
-
-        //std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
-        {
-            LocalRefMapType localRefs;
-
-            t.env->CallVoidMethod(obj, t.methodID, convert(localRefs, t, xs)...);
-
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        }
-        else
-        {
-            reportError(className, methodName, signature);
-        }
-
-    }
 
     template <typename... Ts>
-    static jobject callObjectMethod(jobject& obj, const std::string& className,
+    static jobject callObjectMethod(const std::string& default_signature, const jobject& obj, const std::string& className,
                                     const std::string& methodName, const std::string& returnClassName,
                                     Ts... xs)
     {
         jobject res;
         JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+        std::string signature;
+        if(default_signature.length() != 0 )
+        {
+            signature = default_signature;
+        }
+        else {
+            signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+        }
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
             LocalRefMapType localRefs;
@@ -117,9 +132,10 @@ public:
             reportError(className, methodName, signature);
             return NULL;
         }
-
         return res;
     }
+
+
     template <typename... Ts>
     static jobject createObjectMethod(const std::string& className, Ts... xs)
     {
@@ -197,7 +213,6 @@ public:
         jobject ret;
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
-
         if (JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
 
@@ -244,73 +259,66 @@ public:
 
     static std::string getObjectClassName(jobject obj)
     {
-        jobject classObj = JniHelper::callObjectMethod(obj, "java/lang/Object", "getClass", "java/lang/Class");
+        jobject classObj = JniHelper::callObjectMethod("", obj, "java/lang/Object", "getClass", "java/lang/Class");
         std::string  className = JniHelper::callStringMethod(classObj, "java/lang/Class", "getName");
+        JniHelper::getEnv()->DeleteLocalRef(classObj);
         return className;
     }
 
-    static void checkException(JNIEnv* env)
-    {
-        jthrowable exc = env->ExceptionOccurred();
-        jboolean error = env->ExceptionCheck();
-        if(error)
-        {
-            //异常处理
-            jclass newExcCls =env->GetObjectClass(exc);
-            //class.getclass().getname();
-            //输出异常
-            jobject testt = (jobject)exc;
-            env->ExceptionDescribe();
-            //清除异常
-            env->ExceptionClear();
-            // env->ThrowNew(newExcCls, "thrown from C code");
-        }
 
-
-    }
     static void deleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs);
 
 
 
-static JavaException getExceptionFromName(const std::string& exceptionName) {
-        if(exceptionName.compare("alluxio.exception.AlluxIOException")==0) {
+    static JavaException getExceptionFromName(const std::string& exceptionName)
+    {
+        if(exceptionName.compare("alluxio.exception.AlluxIOException")==0)
+        {
             return  AlluxioException();
-        } else if (exceptionName.compare("alluxio.exception.IOException")==0) {
-                    return  IOException();
-        } else if(exceptionName.compare("alluxio.exception.InvalidPathException")==0) {
+        }
+        else if (exceptionName.compare("alluxio.exception.IOException")==0)
+        {
+            return  IOException();
+        }
+        else if(exceptionName.compare("alluxio.exception.InvalidPathException")==0)
+        {
             return InvalidPathException();
-        }  else if(exceptionName.compare("alluxio.exception.FileAlreadyExistsException")==0) {
+        }
+        else if(exceptionName.compare("alluxio.exception.FileAlreadyExistsException")==0)
+        {
             return FileAlreadyExistsException();
-        } else if(exceptionName.compare("alluxio.exception.FileDoesNotExistException")==0) {
+        }
+        else if(exceptionName.compare("alluxio.exception.FileDoesNotExistException")==0)
+        {
             return  FileDoesNotExistException();
         }
-        else {
+        else
+        {
             return JavaException();
         }
 
-};
+    };
 
- static void exceptionCheck(JNIEnv *env) {
-
- jthrowable exc;
-    exc = env->ExceptionOccurred();
-    jboolean error = env->ExceptionCheck();
-    if(error)
+    static void exceptionCheck()
     {
-        //异常处理
-        //输出异常
-        env->ExceptionDescribe();
-        //清除异常
-        env->ExceptionClear();
-        std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
-        JavaException e = getExceptionFromName(exceptionName);
-        throw e;
-       // env->ThrowNew(newExcCls, "thrown from C code");
+        JNIEnv *env = getEnv();
+        jthrowable exc;
+        exc = env->ExceptionOccurred();
+        jboolean error = env->ExceptionCheck();
+        if(error)
+        {
+            //异常处理
+            //输出异常
+            env->ExceptionDescribe();
+            //清除异常
+            env->ExceptionClear();
+            std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
+            JavaException e = getExceptionFromName(exceptionName);
+
+            throw e;
+            // env->ThrowNew(newExcCls, "thrown from C code");
+        }
     }
-}
-
-
-
 
 private:
     static jstring  string2jstring(JNIEnv* env,const char* pat);

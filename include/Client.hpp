@@ -8,6 +8,7 @@
 #include "Wire.hpp"
 #include <list>
 #include <map>
+
 using namespace std;
 
 class Client
@@ -59,17 +60,22 @@ public:
     void unmount(const std::string& path) throw( IOException, AlluxioException);
     void unmount(const std::string& path, UnmountOptions options) throw( IOException, AlluxioException);
 
+    void closeClient();
 
     // FileOutStream createFile(AlluxioURI path);
-//  FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
-// void delete(AlluxioURI path)
+ //  FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
+ // void delete(AlluxioURI path)
     //void delete(AlluxioURI path, DeleteOptions options)
     ~Client();
 
 protected:
 
 private:
-    jobject FileSystem;
+    jobject filesystem;
+    jobject createAlluxioURI(const std::string& path);
+    void callJNIBydefaultOpt(const std::string& path, const std::string& methodName);
+    void callJNIBydefaultOpt(const std::string& src, const std::string&dst, const std::string& methodName);
+
 };
 
 #endif // CLIENT_H

@@ -75,7 +75,7 @@ JNIEnv* JniHelper::cacheEnv(JavaVM* jvm)
     switch (ret)
     {
     case JNI_OK :
-        // Success!
+        // success!
         pthread_setspecific(g_key, _env);
         return _env;
 
@@ -213,6 +213,7 @@ bool JniHelper::getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
     }
 
     jclass classID = env->FindClass(className);
+
     if (! classID)
     {
         //  LOGE("Failed to find class %s", className);
@@ -221,10 +222,6 @@ bool JniHelper::getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
     }
 
     jmethodID methodID = env->GetMethodID(classID, methodName, paramCode);
-    if(methodID == 0)
-    {
-
-    }
     if (! methodID)
     {
         //   LOGE("Failed to find method id of %s", methodName);
