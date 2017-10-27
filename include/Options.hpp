@@ -7,7 +7,8 @@
 class CreateDirectoryOptions
 {
 public:
-    CreateDirectoryOptions() {
+    CreateDirectoryOptions()
+    {
 
     };
     ~CreateDirectoryOptions()
@@ -18,111 +19,171 @@ public:
 
 class CreateFileOptions
 {
+private:
+    jobject createFileOpt;
 public:
-    CreateFileOptions()
-    {
-
+    CreateFileOptions();
+    ~CreateFileOptions();
+    long getBlockSizeBytes() {
+            return JniHelper::callLongMethod(createFileOpt, "CreateFileOptions", "getBlockSizeBytes");
     }
-    ~CreateFileOptions()
-    {
-
+    FileWriteLocationPolicy getLocationPolicy() {
+            jobject  policyObj = JniHelper::callObjectMethod(createFileOpt,
+            "alluxio/client/file/options/CreateFileOptions", "alluxio/client/file/policy/FileWriteLocationPolicy");
+            return FileWriteLocationPolicy(policyObj);
     }
+        CreateFileOptions& setBlockSizeBytes() {
+                 createFileOpt =  JniHelper::callObjectMethod(createFileOpt, "CreateFileOptions", "setBlockSizeBytes");
+                return *this;
+    }
+    CreateFileOptions setLocationPolicy(FileWriteLocationPolicy locationPolicy)  {
+            createFileOpt = JniHelper::callObjectMethod(createFileOpt, "CreateFileOptions", "setLocationPolicy", locationPolicy.getJobject());
+    }
+    // the following functions are similar as the above two functions, so i don't list the detailed code
+   std:: string getLocationPolicyClass() {...}
+    long getTtl() {...}
+    TtlAction getTtlAction() {...}
+    Mode getMode(){...}
+    int getWriteTier(){...}
+     WriteType getWriteType(){...}
+     bool isRecursive() {...}
+     //
+
+    CreateFileOptions setLocationPolicyClass(std::string className) {...}
+   CreateFileOptions setMode(Mode mode) {...}
+   CreateFileOptions setRecursive(boolean recursive) {...}
+   CreateFileOptions setTtl(long ttl) {...}
+   CreateFileOptions setTtlAction(TtlAction ttlAction) {...}
+   CreateFileOptions setWriteTier(int writeTier) {...}
+   CreateFileOptions setWriteType(WriteType writeType) {...}
+   OutStreamOptions toOutStreamOptions() {...}
+
+
 };
 
 class DeleteOptions
 {
 public:
-    DeleteOptions() {
+    DeleteOptions()
+    {
 
     }
-    ~DeleteOptions() {
+    ~DeleteOptions()
+    {
     }
 };
 
-class ExistsOptions{
+class ExistsOptions
+{
 public :
-    ExistsOptions() {
+    ExistsOptions()
+    {
 
     }
-    ~ExistsOptions() {
+    ~ExistsOptions()
+    {
 
     }
 
 };
 
-class FreeOptions {
+class FreeOptions
+{
 public:
-FreeOptions() {
+    FreeOptions()
+    {
 
-}
-~FreeOptions() {
-}
+    }
+    ~FreeOptions()
+    {
+    }
 };
 
-class ListStatusOptions{
+class ListStatusOptions
+{
 public:
-ListStatusOptions() {
+    ListStatusOptions()
+    {
 
-}
-~ListStatusOptions() {
+    }
+    ~ListStatusOptions()
+    {
 
-}
+    }
 };
 
-class MountOptions {
+class MountOptions
+{
 public:
-MountOptions() {
+    MountOptions()
+    {
 
-}
-~MountOptions() {
+    }
+    ~MountOptions()
+    {
 
-}
-
-};
-
-class OpenFileOptions {
-public:
-   OpenFileOptions() {
-
-   }
-   ~OpenFileOptions() {
-   }
+    }
 
 };
 
-class RenameOptions{
+class OpenFileOptions
+{
 public:
-RenameOptions() {
+    OpenFileOptions()
+    {
 
-}
-~RenameOptions(){
-}
+    }
+    ~OpenFileOptions()
+    {
+    }
+
 };
 
-class SetAttributeOptions{
+class RenameOptions
+{
 public:
-SetAttributeOptions() {
+    RenameOptions()
+    {
 
-}
-~SetAttributeOptions() {
-
-}
+    }
+    ~RenameOptions()
+    {
+    }
 };
 
-class UnmountOptions {
+class SetAttributeOptions
+{
 public:
-UnmountOptions() {
+    SetAttributeOptions()
+    {
 
-}
-~UnmountOptions() {
+    }
+    ~SetAttributeOptions()
+    {
 
-}
+    }
 };
-class GetStatusOptions {
+
+class UnmountOptions
+{
 public:
-GetStatusOptions() {
-}
-~GetStatusOptions() {
-}
+    UnmountOptions()
+    {
+
+    }
+    ~UnmountOptions()
+    {
+
+    }
+};
+class GetStatusOptions
+{
+public:
+    GetStatusOptions()
+    {
+    }
+    ~GetStatusOptions()
+    {
+    }
 };
 

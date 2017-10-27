@@ -36,7 +36,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="include/Client.hpp" />
+		<Unit filename="include/Client.h" />
 		<Unit filename="include/Exceptions.hpp">
 			<Option link="1" />
 		</Unit>
@@ -44,12 +44,14 @@
 		<Unit filename="include/FileOutStream.h" />
 		<Unit filename="include/JNIHelper.h" />
 		<Unit filename="include/Options.hpp" />
+		<Unit filename="include/Status.h" />
 		<Unit filename="include/Wire.hpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Client.cpp" />
 		<Unit filename="src/FileInStream.cpp" />
 		<Unit filename="src/FileOutStream.cpp" />
 		<Unit filename="src/JNIHelper.cpp" />
+		<Unit filename="src/Status.cpp" />
 		<Unit filename="test.cpp" />
 		<Extensions>
 			<code_completion />

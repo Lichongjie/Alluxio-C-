@@ -77,7 +77,7 @@ public:
     static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
-    static void callVoidMethod(const std::string& default_signature, const jobject& obj, const std::string& className,
+    static void callVoidMethod(const std::string& default_signature,  jobject& obj, const std::string& className,
                                const std::string& methodName,
                                Ts... xs)
     {
@@ -106,7 +106,7 @@ public:
     }
 
     template <typename... Ts>
-    static jobject callObjectMethod(const std::string& default_signature, const jobject& obj, const std::string& className,
+    static jobject callObjectMethod(const std::string& default_signature,  jobject& obj, const std::string& className,
                                     const std::string& methodName, const std::string& returnClassName,
                                     Ts... xs)
     {
@@ -161,7 +161,7 @@ public:
     }
 
     template <typename... Ts>
-    static bool callBooleanMethod(jobject obj, const std::string& className,
+    static bool callBooleanMethod(jobject& obj, const std::string& className,
                                   const std::string& methodName,
                                   Ts... xs)
     {
@@ -313,6 +313,9 @@ public:
             //清除异常
             env->ExceptionClear();
             std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
+            std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable", "getMessage");
+
+
             JavaException e = getExceptionFromName(exceptionName);
 
             throw e;
@@ -322,9 +325,8 @@ public:
 
 private:
     static jstring  string2jstring(JNIEnv* env,const char* pat);
-    //static std::string jstring2string(jstring jstr);
+    static std::string jstring2string(jstring jstr);
     static JNIEnv* cacheEnv(JavaVM* jvm);
-
     static bool getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
             const char *className,
             const char *methodName,

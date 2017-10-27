@@ -11,16 +11,13 @@ class FileInStream
         FileInStream();
         FileInStream(jobject AlluxioInStream);
          ~FileInStream();
-        int read( ) throw (IOException) ;
-        int read(char* b) throw (IOException) ;
-        int read(char* b, int off, int len)throw (IOException);
-
-    protected:
-
+        int read( ) throw;
+        int read(char* b) ;;
+        int read(char* b, int off, int len);
+        void close();
     private:
         jobject inStream;
         JniHelper::LocalRefMapType localRefs;
-
 };
 
 #endif // FILEINSTREAM_H

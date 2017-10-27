@@ -8,7 +8,7 @@
 
 class JavaException {
 public:
-JavaException() {
+JavaException(){
 
 }
 JavaException(const std::string &errorMsg) {

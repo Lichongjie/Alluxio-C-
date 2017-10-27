@@ -7,26 +7,55 @@
 #include<sstream>
 #include <iostream>
 #include<Client.hpp>
+#include <sys/time.h>    // for gettimeofday()
 //#include<json.h>
 using namespace std;
+
 // 环境变量PATH在windows下和linux下的分割符定义
 #ifdef _WIN32
 #define PATH_SEPARATOR ';'
 #else
 #define PATH_SEPARATOR ':'
+
 #endif
+/*
+string fa_getSysTime()
+{
+     struct timeval tv;
+     gettimeofday(&tv,NULL);
+     struct tm* pTime;
+     pTime = localtime(&tv.tv_sec);
+
+     char sTemp[30] = {0};
+     snprintf(sTemp, sizeof(sTemp), "%04d %02d %02d %02d %02d %02d %03d %03d", pTime->tm_year+1900, \
+            pTime->tm_mon+1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, \
+            tv.tv_usec/1000,tv.tv_usec%1000);
+     return (string)sTemp;
+}*/
 
 int main(void)
 {
+ struct timeval start, endd;
+   // printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
+
+   // cout<< "当前时间：" << fa_getSysTime() << endl;
 
  Client client = Client();
- client.deletePath("/hehe");
+     gettimeofday( &start, NULL );
+  //  printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
+for(int i = 0 ;i <1000;i++) {
+ client.createFile("/hehehe");
+ client.deletePath("/hehehe");
+}
+    gettimeofday( &endd, NULL );
+   // printf("endd : %d.%d\n", endd.tv_sec, endd.tv_usec);
 
- FileOutStream os =client.createFile("/hehe");
- const unsigned char *s = (const unsigned char*)"testreertest";
- os.write(s);
- os.close();
+long time_use=(endd.tv_sec-start.tv_sec)*1000000+(endd.tv_usec-start.tv_usec);//微秒 //const unsigned char *s = (const unsigned char*)"testreerfewgtest";
+ std::cout<<time_use<<std::endl;
+ //os.write(s);
+ //os.close();
  client.closeClient();
+
 
     /*
         jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
