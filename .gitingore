@@ -5,7 +5,7 @@
 # Ignore thumbnails created by windows
 Thumbs.db
 .git
-
+.o
 # ignore copy files
 /lib
 /linux-build
