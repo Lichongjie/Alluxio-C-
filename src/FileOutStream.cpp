@@ -17,13 +17,13 @@ FileOutStream::~FileOutStream()
     //dtor
 }
 
-void FileOutStream::write(const unsigned char* b) throw (IOException)
+AlluxioStatus FileOutStream::write(const unsigned char* b)
 {
-    FileOutStream::write(b, 0, strlen((const char *)b));
+    return FileOutStream::write(b, 0, strlen((const char *)b));
 
 }
 
-void FileOutStream::write(const unsigned char* b, int off, int len) throw (IOException)
+AlluxioStatus FileOutStream::write(const unsigned char* b, int off, int len)
 {
 int byteLen = strlen((const char *)b);
     JNIEnv *env = JniHelper::getEnv();
@@ -33,8 +33,10 @@ int byteLen = strlen((const char *)b);
   //  std::cout<<strlen(b)<< "      "<<b<<std::endl;
     JniHelper::callVoidMethod("([BII)V", FileOutStream::outStream, "alluxio/client/file/FileOutStream", "write", jbytearrays, off, byteLen);
     FileOutStream::localRefs[env].push_back(jbytearrays);
-    JniHelper::exceptionCheck();
+    return JniHelper::exceptionCheck();
 }
-void FileOutStream::close() throw (IOException) {
+AlluxioStatus FileOutStream::close() {
     JniHelper::callVoidMethod("", FileOutStream::outStream, "alluxio/client/file/FileOutStream", "close");
+        return JniHelper::exceptionCheck();
+
 }

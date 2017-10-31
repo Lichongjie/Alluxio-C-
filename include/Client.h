@@ -8,46 +8,47 @@
 #include "Wire.hpp"
 #include <list>
 #include <map>
-#include <status.h>
+#include <Status.h>
 
 using namespace std;
+typedef Status*  AlluxioStatus;
 
 class Client
 {
 public:
     Client();
-    Status createDirectory(const std::string& path)
-    Status createDirectory(const std::string& path, CreateDirectoryOptions options)
-    Status createFile(const std::string& path)
-    Status createFile(const std::string& path, CreateFileOptions options)
-    Status deletePath(const std::string& path)
-    Status deletePath(const std::string& path, DeleteOptions options)
-    Status exists(const std::string& path)
-    Status exists(const std::string& path, ExistsOptions options)
-    Status free(const std::string& path)
-    Status free(const std::string& path, FreeOptions options)
-    Status getStatus(const std::string& path)
-    Status getStatus(const std::string& path, GetStatusOptions options)
-    Status listStatus(const std::string& path)
-    Status listStatus(const std::string& path, ListStatusOptions options)
-    Status mount(const std::string& alluxioPath, const std::string& ufsPath)
-    Status mount(const std::string& alluxioPath, const std::string& ufsPath, MountOptions options)
-    Status getMountTable()
-    Status openFile(const std::string& path)
-    Status openFile(const std::string& path, OpenFileOptions options)
-    Status rename(const std::string& src, const std::string& dst)
-    Status rename(const std::string& src, const std::string& dst, RenameOptions options)
-    Status setAttribute(const std::string& path)
-    Status setAttribute(const std::string& path, SetAttributeOptions options)
-    Status unmount(const std::string& path)
-    Status unmount(const std::string& path, UnmountOptions options)
+    AlluxioStatus createDirectory(const std::string& path);
+    AlluxioStatus createDirectory(const std::string& path, CreateDirectoryOptions options);
+    AlluxioStatus createFile(const std::string& path);
+    AlluxioStatus createFile(const std::string& path, CreateFileOptions options);
+    AlluxioStatus deletePath(const std::string& path);
+    AlluxioStatus deletePath(const std::string& path, DeleteOptions options);
+    AlluxioStatus exists(const std::string& path);
+    AlluxioStatus exists(const std::string& path, ExistsOptions options);
+    AlluxioStatus free(const std::string& path);
+    AlluxioStatus free(const std::string& path, FreeOptions options);
+    AlluxioStatus getStatus(const std::string& path);
+    AlluxioStatus getStatus(const std::string& path, GetStatusOptions options);
+    AlluxioStatus listStatus(const std::string& path);
+    AlluxioStatus listStatus(const std::string& path, ListStatusOptions options);
+    AlluxioStatus mount(const std::string& alluxioPath, const std::string& ufsPath);
+    AlluxioStatus mount(const std::string& alluxioPath, const std::string& ufsPath, MountOptions options);
+    AlluxioStatus getMountTable();
+    AlluxioStatus openFile(const std::string& path);
+    AlluxioStatus openFile(const std::string& path, OpenFileOptions options);
+    AlluxioStatus rename(const std::string& src, const std::string& dst);
+    AlluxioStatus rename(const std::string& src, const std::string& dst, RenameOptions options);
+    AlluxioStatus setAttribute(const std::string& path);
+    AlluxioStatus setAttribute(const std::string& path, SetAttributeOptions options);
+    AlluxioStatus unmount(const std::string& path);
+    AlluxioStatus unmount(const std::string& path, UnmountOptions options);
     void closeClient();
     ~Client();
 private:
     jobject filesystem;
     jobject createAlluxioURI(const std::string& path);
-    void callJNIBydefaultOpt(const std::string& path, const std::string& methodName);
-    void callJNIBydefaultOpt(const std::string& src, const std::string&dst, const std::string& methodName);
+    AlluxioStatus callJNIBydefaultOpt(const std::string& path, const std::string& methodName);
+    AlluxioStatus callJNIBydefaultOpt(const std::string& src, const std::string&dst, const std::string& methodName);
 };
 
 #endif // CLIENT_H

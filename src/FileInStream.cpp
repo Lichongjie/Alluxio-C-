@@ -18,22 +18,26 @@ FileInStream::~FileInStream()
     //dtor
 }
 //TODO clear *b
-int FileInStream::read(char* b) throw (IOException)
+AlluxioStatus FileInStream::read(char* b)
 {
-    FileInStream::read(b, 0, strlen(b));
+    return FileInStream::read(b, 0, strlen(b));
 }
-int FileInStream::read(char* b, int off, int len)  throw (IOException)
+AlluxioStatus FileInStream::read(char* b, int off, int len)
 {
     JNIEnv *env = JniHelper::getEnv();
     jbyteArray jbytearrays = env->NewByteArray(strlen(b));
     env->SetByteArrayRegion(jbytearrays, 0, strlen(b), (jbyte*)b);
 
-    JniHelper::callIntMethod( "([B)I", FileInStream::inStream,  "alluxio/client/file/FileInStream", "read",  &jbytearrays, off, len);
+    int i  = JniHelper::callIntMethod( "([B)I", FileInStream::inStream,  "alluxio/client/file/FileInStream", "read",  &jbytearrays, off, len);
     delete [] b;
     b =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);
 
-     JniHelper::exceptionCheck( );
+    AlluxioStatus stus =  JniHelper::exceptionCheck( );
+    if(stus->ok()) {
+        stus->setResult(&i);
+    }
+    return stus;
 
 }
 

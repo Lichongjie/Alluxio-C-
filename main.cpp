@@ -6,7 +6,7 @@
 #include<JNIHelper.h>
 #include<sstream>
 #include <iostream>
-#include<Client.hpp>
+#include<Client.h>
 #include <sys/time.h>    // for gettimeofday()
 //#include<json.h>
 using namespace std;

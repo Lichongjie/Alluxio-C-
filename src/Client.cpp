@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "Client.h"
 
 Client::Client()
 {
@@ -22,174 +22,159 @@ Client::closeClient();
 }
 
 
-void Client::callJNIBydefaultOpt(const std::string& path, const std::string& methodName)
+AlluxioStatus Client::callJNIBydefaultOpt(const std::string& path, const std::string& methodName)
 {
     jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", Client::filesystem, "alluxio/client/file/FileSystem",methodName, alluxiURI);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURI);
-    JniHelper::exceptionCheck();
+    return JniHelper::exceptionCheck();
 }
 
-void Client::callJNIBydefaultOpt(const std::string& src, const std::string& dst, const std::string& methodName)
+AlluxioStatus Client::callJNIBydefaultOpt(const std::string& src, const std::string& dst, const std::string& methodName)
 {
     jobject alluxiURISrc = JniHelper::createObjectMethod("alluxio/AlluxioURI", src);
     jobject alluxiURIDst =  JniHelper::createObjectMethod("alluxio/AlluxioURI", dst);
     JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", Client::filesystem, "alluxio/client/file/FileSystem", methodName, alluxiURISrc, alluxiURIDst);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURISrc);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURIDst);
-    JniHelper::exceptionCheck();
+    return JniHelper::exceptionCheck();
 }
 
-void Client::createDirectory(const std::string& path) throw (FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException)
+AlluxioStatus Client::createDirectory(const std::string& path)
 {
     Client::callJNIBydefaultOpt(path, "createDirectory");
 }
-void Client::createDirectory(const std::string& path, CreateDirectoryOptions options)
-throw (FileAlreadyExistsException, InvalidPathException, IOException,AlluxioException)
+AlluxioStatus Client::createDirectory(const std::string& path, CreateDirectoryOptions options)
 {
 
 
 }
-FileOutStream Client::createFile(const std::string& path)
-throw (FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException)
+AlluxioStatus Client::createFile(const std::string& path)
 {
     jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     jobject fileOutStream = JniHelper::callObjectMethod("(Lalluxio/AlluxioURI;)Lalluxio/client/file/FileOutStream;",  Client::filesystem,  "alluxio/client/file/FileSystem","createFile","alluxio/client/file/FileOutStream", alluxiURI);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURI);
-    JniHelper::exceptionCheck();
-    return FileOutStream(fileOutStream);
+    AlluxioStatus stus = JniHelper::exceptionCheck();
+    if(stus->ok())
+        return stus->setResult(new FileOutStream(fileOutStream));
+    return stus;
 }
-FileOutStream Client::createFile(const std::string& path, CreateFileOptions options)
-throw(FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException)
+AlluxioStatus Client::createFile(const std::string& path, CreateFileOptions options)
 {
 
 
 }
-void Client::deletePath(const std::string& path)
-throw(DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::deletePath(const std::string& path)
 {
-    callJNIBydefaultOpt(path, "delete");
+    return callJNIBydefaultOpt(path, "delete");
 }
 
-void Client::deletePath(const std::string& path, DeleteOptions options)
-throw (DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::deletePath(const std::string& path, DeleteOptions options)
 {
 
 }
 
-bool Client::exists(const std::string& path) throw (InvalidPathException, IOException, AlluxioException)
+AlluxioStatus Client::exists(const std::string& path)
 {
-    callJNIBydefaultOpt(path, "exists");
+    jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
+//   bool result =  JniHelper::callBooleanMethod("(Lalluxio/AlluxioURI;)V", Client::filesystem, "alluxio/client/file/FileSystem","exists", alluxiURI);
+   bool result =  JniHelper::callBooleanMethod( Client::filesystem, "alluxio/client/file/FileSystem","exists", alluxiURI);
+
+    JniHelper::getEnv()->DeleteLocalRef(alluxiURI);
+    AlluxioStatus stus = JniHelper::exceptionCheck();
+    if(stus->ok()) {
+    stus->setResult(&result);
+    }
+
+    bool* r = stus->getResult<bool>();
+    return stus;
 }
 
 
-bool Client::exists(const std::string& path, ExistsOptions options)
-throw( InvalidPathException, IOException, AlluxioException)
-{
-
-
-}
-
-void Client::free(const std::string& path) throw( FileDoesNotExistException, IOException, AlluxioException)
-{
-    callJNIBydefaultOpt(path, "free");
-}
-
-void Client::free(const std::string& path, FreeOptions options)
-throw( FileDoesNotExistException, IOException,AlluxioException)
-{
-
-
-}
-
-
-
-
-void Client::mount(const std::string& alluxioPath, const std::string& ufsPath) throw (IOException,AlluxioException)
-{
-    callJNIBydefaultOpt(alluxioPath, ufsPath, "mount");
-}
-
-void Client::mount(const std::string& alluxioPath, const std::string& ufsPath, MountOptions options)
-throw (IOException, AlluxioException)
+AlluxioStatus Client::exists(const std::string& path, ExistsOptions options)
 {
 
 
 }
 
-FileInStream Client::openFile(const std::string& path)
-throw( FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::free(const std::string& path)
+{
+   return callJNIBydefaultOpt(path, "free");
+}
+
+AlluxioStatus Client::free(const std::string& path, FreeOptions options)
+{
+
+
+}
+
+
+
+
+AlluxioStatus Client::mount(const std::string& alluxioPath, const std::string& ufsPath)
+{
+    return callJNIBydefaultOpt(alluxioPath, ufsPath, "mount");
+}
+
+AlluxioStatus Client::mount(const std::string& alluxioPath, const std::string& ufsPath, MountOptions options)
+{
+
+
+}
+
+AlluxioStatus Client::openFile(const std::string& path)
 {
  jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     jobject fileInStream = JniHelper::callObjectMethod("(Lalluxio/AlluxioURI;)Lalluxio/client/file/FileInStream",  Client::filesystem,  "alluxio/client/file/FileSystem","openFile","alluxio/client/file/FileInStream", alluxiURI);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURI);
-    JniHelper::exceptionCheck();
-    return FileInStream(fileInStream);
-
+   AlluxioStatus stus = JniHelper::exceptionCheck();
+    if(stus->ok())
+        return stus->setResult(new FileInStream(fileInStream));
+    return stus;
 }
 
-FileInStream Client::openFile(const std::string& path, OpenFileOptions options)
-throw( FileDoesNotExistException, IOException,AlluxioException)
+AlluxioStatus Client::openFile(const std::string& path, OpenFileOptions options)
 {
 
 }
 
-void Client::rename(const std::string& src, const std::string& dst)
-throw (FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::rename(const std::string& src, const std::string& dst)
 {
-    callJNIBydefaultOpt(src, dst, "mount");
+    return callJNIBydefaultOpt(src, dst, "mount");
 
 }
 
-void Client::rename(const std::string& src, const std::string& dst, RenameOptions options)
-throw(FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::rename(const std::string& src, const std::string& dst, RenameOptions options)
 {
 
 
 }
 
 
-void Client::setAttribute(const std::string& path)
-throw( FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::setAttribute(const std::string& path)
 {
-    callJNIBydefaultOpt(path, "mount");
+    return callJNIBydefaultOpt(path, "mount");
 }
 
-void Client::setAttribute(const std::string& path, SetAttributeOptions options)
-throw( FileDoesNotExistException, IOException, AlluxioException)
+AlluxioStatus Client::setAttribute(const std::string& path, SetAttributeOptions options)
 {
-    callJNIBydefaultOpt(path, "setAttribute");
-
-}
-
-void Client::unmount(const std::string& path) throw( IOException, AlluxioException)
-{
-
-    callJNIBydefaultOpt(path, "unmount");
+    return callJNIBydefaultOpt(path, "setAttribute");
 
 }
 
-void Client::unmount(const std::string& path, UnmountOptions options) throw( IOException, AlluxioException)
+AlluxioStatus Client::unmount(const std::string& path)
+{
+
+    return callJNIBydefaultOpt(path, "unmount");
+
+}
+
+AlluxioStatus Client::unmount(const std::string& path, UnmountOptions options)
 {
 
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

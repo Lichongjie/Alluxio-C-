@@ -19,6 +19,7 @@ public:
 
 class CreateFileOptions
 {
+/*
 private:
     jobject createFileOpt;
 public:
@@ -58,7 +59,7 @@ public:
    CreateFileOptions setWriteType(WriteType writeType) {...}
    OutStreamOptions toOutStreamOptions() {...}
 
-
+*/
 };
 
 class DeleteOptions

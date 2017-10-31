@@ -11,9 +11,9 @@ class FileInStream
         FileInStream();
         FileInStream(jobject AlluxioInStream);
          ~FileInStream();
-        int read( ) throw;
-        int read(char* b) ;;
-        int read(char* b, int off, int len);
+        AlluxioStatus read( ) ;
+        AlluxioStatus read(char* b) ;
+        AlluxioStatus read(char* b, int off, int len);
         void close();
     private:
         jobject inStream;

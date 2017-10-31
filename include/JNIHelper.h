@@ -11,12 +11,14 @@
 #include <string.h>
 #include<iostream>
 #include "Exceptions.hpp"
+#include<Status.h>
 //#include "platform/CCPlatformMacros.h"
 //#include "math/Vec3.h"
 
 //NS_CC_BEGIN
 
 using namespace std;
+typedef Status*  AlluxioStatus;
 
 typedef struct JniMethodInfo_
 {
@@ -265,41 +267,83 @@ public:
         return className;
     }
 
-
     static void deleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs);
 
-
-
-    static JavaException getExceptionFromName(const std::string& exceptionName)
+    static AlluxioStatus getStatusFromJavaException(const std::string& statusName, const std::string& errorMsg)
     {
-        if(exceptionName.compare("alluxio.exception.AlluxIOException")==0)
+        using namespace std;
+        AlluxioStatus status;
+        if(statusName.compare("CANCELED") == 0)
         {
-            return  AlluxioException();
+            status  =  Status::canceled(errorMsg);
+
         }
-        else if (exceptionName.compare("alluxio.exception.IOException")==0)
+        else if(statusName.compare("UNKNOWN") == 0)
         {
-            return  IOException();
+            status  =  Status::unknown(errorMsg);
         }
-        else if(exceptionName.compare("alluxio.exception.InvalidPathException")==0)
+        else if(statusName.compare("INVALID_ARGUMENT") == 0)
         {
-            return InvalidPathException();
+            status  =  Status::invalidArgument(errorMsg);
         }
-        else if(exceptionName.compare("alluxio.exception.FileAlreadyExistsException")==0)
+        else if(statusName.compare("DEADLINE_EXCEEDED") == 0)
         {
-            return FileAlreadyExistsException();
+            status  =  Status::deadlineExceeded(errorMsg);
         }
-        else if(exceptionName.compare("alluxio.exception.FileDoesNotExistException")==0)
+        else if(statusName.compare("NOT_FOUND") == 0)
         {
-            return  FileDoesNotExistException();
+            status  =  Status::notFound(errorMsg);
         }
-        else
+        else if(statusName.compare("ALREADY_EXISTS") == 0)
         {
-            return JavaException();
+            status  =  Status::alreadyExist(errorMsg);
         }
+        else if(statusName.compare("PERMISSION_DENIED") == 0)
+        {
+            status  =  Status::permissionDenied(errorMsg);
+        }
+        else if(statusName.compare("UNAUTHENTICATED") == 0)
+        {
+            status  =  Status::unAuthenticated(errorMsg);
+        }
+        else if(statusName.compare("RESOURCE_EXHAUSTED") == 0)
+        {
+            status  =  Status::resourceExhausted(errorMsg);
+        }
+        else if(statusName.compare("FAILED_PRECONDITION") == 0)
+        {
+            status  =  Status::failedPrecondition(errorMsg);
+        }
+        else if(statusName.compare("ABORTED") == 0)
+        {
+            status  =  Status::aborted(errorMsg);
+        }
+        else if(statusName.compare("OUT_OF_RANGE") == 0)
+        {
+            status  =  Status::outOfRange(errorMsg);
+        }
+        else if(statusName.compare("UNIMPLEMENTED") == 0)
+        {
+            status  =  Status::unImplemented(errorMsg);
+        }
+        else if(statusName.compare("INTERNAL") == 0)
+        {
+            status  =  Status::internal(errorMsg);
+        }
+        else if(statusName.compare("UNAVAILABLE") == 0)
+        {
+            status  =  Status::unavailable(errorMsg);
+        }
+        else if(statusName.compare("DATA_LOSS") == 0)
+        {
+            status  =  Status::dataLoss(errorMsg);
+        }
+
+        return status;
 
     };
 
-    static void exceptionCheck()
+    static AlluxioStatus exceptionCheck()
     {
         JNIEnv *env = getEnv();
         jthrowable exc;
@@ -314,18 +358,20 @@ public:
             env->ExceptionClear();
             std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
             std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable", "getMessage");
+            //jobject statusInAlluxio = JniHelper::callObjectMethod("", (jobject& )exc,
+            //"alluxio/exception/status/AlluxioStatusException", "getStatus","alluxio/exception/status/Status");
+            std::string statusName = JniHelper::callStringMethod((jobject)exc, "java/lang/enum", "name");
 
-
-            JavaException e = getExceptionFromName(exceptionName);
-
-            throw e;
+             return getStatusFromJavaException(statusName, errorMsg);
             // env->ThrowNew(newExcCls, "thrown from C code");
+        }
+        else {
+            return new Status();
         }
     }
 
 private:
     static jstring  string2jstring(JNIEnv* env,const char* pat);
-    static std::string jstring2string(jstring jstr);
     static JNIEnv* cacheEnv(JavaVM* jvm);
     static bool getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
             const char *className,
