@@ -18,7 +18,6 @@
 //NS_CC_BEGIN
 
 using namespace std;
-typedef Status*  AlluxioStatus;
 
 typedef struct JniMethodInfo_
 {
@@ -44,7 +43,7 @@ public:
         JavaVMOption options[1];
         JavaVMInitArgs vm_args;
         //options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
-        options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
+        options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/FileSystem/target/alluxio-assembly-FileSystem-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
         memset(&vm_args, 0, sizeof(vm_args));
         vm_args.version = JNI_VERSION_1_8;
         vm_args.nOptions = 1;
@@ -185,12 +184,12 @@ public:
     }
 
     template <typename... Ts>
-    static int callIntMethod(const std::string& signature, jobject obj, const std::string& className, const std::string& methodName, Ts... xs)
+    static int callIntMethod( const std::string& className, const std::string& methodName, Ts... xs)
     {
-
+/*
         jint jret;
         JniMethodInfo t;
-        //std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
             LocalRefMapType localRefs;
@@ -203,18 +202,28 @@ public:
             reportError(className, methodName, signature);
         }
         return (int)jret;
+        */
+        return 0;
 
     }
 
     template <typename... Ts>
-    static jobject callStaticObjectMethod(const std::string& className,
+    static jobject callStaticObjectMethod(const std::string& default_signature, const std::string& className,
                                           const std::string& methodName, const std::string& returnClassName,
                                           Ts... xs)
     {
 
         jobject ret;
         JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+        std::string signature;
+         if(default_signature.length() != 0 )
+        {
+            signature = default_signature;
+        }
+        else {
+            signature  = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+        }
+
         if (JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
 
@@ -269,10 +278,10 @@ public:
 
     static void deleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs);
 
-    static AlluxioStatus getStatusFromJavaException(const std::string& statusName, const std::string& errorMsg)
+    static Status getStatusFromJavaException(const std::string& statusName, const std::string& errorMsg)
     {
         using namespace std;
-        AlluxioStatus status;
+        Status status;
         if(statusName.compare("CANCELED") == 0)
         {
             status  =  Status::canceled(errorMsg);
@@ -343,7 +352,7 @@ public:
 
     };
 
-    static AlluxioStatus exceptionCheck()
+    static Status exceptionCheck()
     {
         JNIEnv *env = getEnv();
         jthrowable exc;
@@ -358,15 +367,21 @@ public:
             env->ExceptionClear();
             std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
             std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable", "getMessage");
-            //jobject statusInAlluxio = JniHelper::callObjectMethod("", (jobject& )exc,
-            //"alluxio/exception/status/AlluxioStatusException", "getStatus","alluxio/exception/status/Status");
+            if(exceptionName.compare("alluxio/exception/FileDoesNotExistException") == 0 ) {
+                return Status::notFound(errorMsg);
+            } else if(exceptionName.compare("alluxio/exception/UnavailableException") == 0) {
+                return Status::unavailable(errorMsg);
+            }
+            jobject StatusException = JniHelper::callStaticObjectMethod("(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
+            , "alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/AlluxioException", (jobject)exc);
+            jobject statusInAlluxio = JniHelper::callObjectMethod("", (jobject& )exc,
+                "alluxio/exception/status/StatusException", "getStatus","alluxio/exception/status/Status");
             std::string statusName = JniHelper::callStringMethod((jobject)exc, "java/lang/enum", "name");
-
              return getStatusFromJavaException(statusName, errorMsg);
             // env->ThrowNew(newExcCls, "thrown from C code");
         }
         else {
-            return new Status();
+            return Status();
         }
     }
 

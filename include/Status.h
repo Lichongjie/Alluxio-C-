@@ -19,75 +19,75 @@ public:
     Status(const Status& s);
     void operator=(const Status& s);
 
-    static Status* OK()
+    static Status OK()
     {
-        return new  Status();    // 返回一个success的状态
+        return   Status();    // 返回一个success的状态
     }
 
-    static Status* canceled(const std::string& msg)
+    static Status canceled(const std::string& msg)
     {
-        return new Status(CANCELED, msg );
+        return  Status(CANCELED, msg );
     }
-    static Status* unknown(const std::string& msg)
+    static Status unknown(const std::string& msg)
     {
-        return new Status(UNKNOWN, msg);
+        return Status(UNKNOWN, msg);
     }
-    static Status* invalidArgument(const std::string& msg)
+    static Status invalidArgument(const std::string& msg)
     {
-        return new Status(INVALID_ARGUMENT, msg);
+        return Status(INVALID_ARGUMENT, msg);
     }
-    static Status* deadlineExceeded(const std::string& msg)
+    static Status deadlineExceeded(const std::string& msg)
     {
-        return new Status(DEADLINE_EXCEEDED, msg);
+        return Status(DEADLINE_EXCEEDED, msg);
     }
-    static Status* notFound(const std::string& msg)
+    static Status notFound(const std::string& msg)
     {
-        return new Status(NOT_FOUND, msg);
+        return Status(NOT_FOUND, msg);
     }
-    static Status* alreadyExist(const std::string& msg)
+    static Status alreadyExist(const std::string& msg)
     {
-        return new Status(ALREADY_EXISTS, msg);
+        return Status(ALREADY_EXISTS, msg);
     }
-    static Status* permissionDenied(const std::string& msg)
+    static Status permissionDenied(const std::string& msg)
     {
-        return new Status(PERMISSION_DENIED, msg);
+        return Status(PERMISSION_DENIED, msg);
     }
-    static Status* unAuthenticated(const std::string& msg)
+    static Status unAuthenticated(const std::string& msg)
     {
-        return new Status(UNAUTHENTICATED, msg);
+        return  Status(UNAUTHENTICATED, msg);
     }
-    static Status* resourceExhausted(const std::string& msg)
+    static Status resourceExhausted(const std::string& msg)
     {
-        return new Status(RESOURCE_EXHAUSTED, msg);
+        return  Status(RESOURCE_EXHAUSTED, msg);
     }
-    static Status* failedPrecondition(const std::string& msg)
+    static Status failedPrecondition(const std::string& msg)
     {
-        return new Status(FAILED_PRECONDITION, msg);
+        return  Status(FAILED_PRECONDITION, msg);
     }
-    static Status* aborted(const std::string& msg)
+    static Status aborted(const std::string& msg)
     {
-        return new Status(ABORTED, msg);
+        return  Status(ABORTED, msg);
     }
-    static Status* outOfRange(const std::string& msg)
+    static Status outOfRange(const std::string& msg)
     {
-        return new Status(OUT_OF_RANGE, msg);
+        return  Status(OUT_OF_RANGE, msg);
     }
-    static Status* unImplemented(const std::string& msg)
+    static Status unImplemented(const std::string& msg)
     {
-        return new Status(UNIMPLEMENTED, msg);
+        return  Status(UNIMPLEMENTED, msg);
 
     }
-    static Status* internal(const std::string& msg)
+    static Status internal(const std::string& msg)
     {
-        return new Status(INTERNAL, msg);
+        return Status(INTERNAL, msg);
     }
-    static Status* unavailable(const std::string& msg)
+    static Status unavailable(const std::string& msg)
     {
-        return new Status(UNAVAILABLE, msg);
+        return Status(UNAVAILABLE, msg);
     }
-    static Status* dataLoss(const std::string& msg)
+    static Status dataLoss(const std::string& msg)
     {
-        return  new Status(DATA_LOSS, msg);
+        return  Status(DATA_LOSS, msg);
     }
 
 
@@ -95,26 +95,12 @@ public:
     {
         return (state_ == NULL);
     }
-
     // Returns true iff the status indicates a NotFound error.
     /*
     bool IsNotFound() const
     {
         return code() == kNotFound;
     }*/
-    template<typename T>
-    Status* setResult(T* t)
-    {
-        result = t;
-        return this;
-    }
-
-    template<typename T>
-    T* getResult()
-    {
-        return static_cast<T*>(result);
-    }
-
     // Return a string representation of this status suitable for printing.
     // Returns the string "OK" for success.
     std::string ToString() const;

@@ -1,5 +1,7 @@
 #include "FileInStream.h"
 
+using namespace alluxio;
+
 FileInStream::FileInStream()
 {
     //ctor
@@ -18,26 +20,25 @@ FileInStream::~FileInStream()
     //dtor
 }
 //TODO clear *b
-AlluxioStatus FileInStream::read(char* b)
+Status FileInStream::read(char* b)
 {
-    return FileInStream::read(b, 0, strlen(b));
+    return FileInStream::read(b, 0, strlen(b), NULL);
 }
-AlluxioStatus FileInStream::read(char* b, int off, int len)
-{
-    JNIEnv *env = JniHelper::getEnv();
-    jbyteArray jbytearrays = env->NewByteArray(strlen(b));
-    env->SetByteArrayRegion(jbytearrays, 0, strlen(b), (jbyte*)b);
 
-    int i  = JniHelper::callIntMethod( "([B)I", FileInStream::inStream,  "alluxio/client/file/FileInStream", "read",  &jbytearrays, off, len);
-    delete [] b;
-    b =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
+
+      Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* result) {
+          JNIEnv *env = JniHelper::getEnv();
+    jbyteArray jbytearrays = env->NewByteArray(strlen(buf));
+    env->SetByteArrayRegion(jbytearrays, 0, strlen(buf), (jbyte*)buf);
+
+    int i  = JniHelper::callIntMethod( "([B)I", FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, off, len);
+    //delete [] b;
+    buf =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);
 
-    AlluxioStatus stus =  JniHelper::exceptionCheck( );
-    if(stus->ok()) {
-        stus->setResult(&i);
-    }
+      Status stus =  JniHelper::exceptionCheck( );
     return stus;
-
-}
+      }
+           // Status seek(size_t pos);
+          //  Status skip(size_t pos);
 

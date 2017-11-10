@@ -10,9 +10,9 @@ class FileOutStream
         FileOutStream();
         FileOutStream(jobject AlluxioOutStream);
         void write(int b);
-        AlluxioStatus write(const unsigned char* b);
-        AlluxioStatus write(const unsigned char* b, int off, int len);
-        AlluxioStatus close();
+        Status write(const unsigned char* b);
+        Status write(const unsigned char* b, int off, int len);
+        Status close();
          ~FileOutStream();
 
     protected:

@@ -30,7 +30,7 @@ public:
     }
     FileWriteLocationPolicy getLocationPolicy() {
             jobject  policyObj = JniHelper::callObjectMethod(createFileOpt,
-            "alluxio/client/file/options/CreateFileOptions", "alluxio/client/file/policy/FileWriteLocationPolicy");
+            "alluxio/FileSystem/file/options/CreateFileOptions", "alluxio/FileSystem/file/policy/FileWriteLocationPolicy");
             return FileWriteLocationPolicy(policyObj);
     }
         CreateFileOptions& setBlockSizeBytes() {

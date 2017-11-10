@@ -6,7 +6,7 @@
 #include<JNIHelper.h>
 #include<sstream>
 #include <iostream>
-#include<Client.h>
+#include<FileSystem.h>
 #include <sys/time.h>    // for gettimeofday()
 //#include<json.h>
 using namespace std;
@@ -39,13 +39,13 @@ int main(void)
    // printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
 
    // cout<< "当前时间：" << fa_getSysTime() << endl;
-
- Client client = Client();
+/*
+ FileSystem FileSystem = FileSystem();
      gettimeofday( &start, NULL );
   //  printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
 for(int i = 0 ;i <1000;i++) {
- client.createFile("/hehehe");
- client.deletePath("/hehehe");
+ FileSystem.createFile("/hehehe");
+ FileSystem.deletePath("/hehehe");
 }
     gettimeofday( &endd, NULL );
    // printf("endd : %d.%d\n", endd.tv_sec, endd.tv_usec);
@@ -54,15 +54,15 @@ long time_use=(endd.tv_sec-start.tv_sec)*1000000+(endd.tv_usec-start.tv_usec);//
  std::cout<<time_use<<std::endl;
  //os.write(s);
  //os.close();
- client.closeClient();
+ FileSystem.closeFileSystem();
 
 
     /*
-        jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
+        jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/FileSystem/file/FileSystem$Factory", "get", "alluxio/FileSystem/file/FileSystem");
         std::string path = "/hehehe";
         jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     //jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
-        JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/client/file/FileSystem","createDirectory", alluxiURI);
+        JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/FileSystem/file/FileSystem","createDirectory", alluxiURI);
         jvm->DestroyJavaVM();
         return 0;
         */
