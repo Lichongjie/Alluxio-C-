@@ -51,6 +51,13 @@ public:
 };
 
 class URIStatus {
+public:
+URIStatus(jobject URIStatus) {
+jURIStatus = URIStatus;
+}
+
+private:
+jobject jURIStatus;
 
 
 };

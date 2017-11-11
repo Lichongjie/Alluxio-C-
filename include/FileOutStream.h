@@ -6,20 +6,21 @@
 
 class FileOutStream
 {
-    public:
-        FileOutStream();
-        FileOutStream(jobject AlluxioOutStream);
-        void write(int b);
-        Status write(const unsigned char* b);
-        Status write(const unsigned char* b, int off, int len);
-        Status close();
-         ~FileOutStream();
+public:
+    FileOutStream();
+    FileOutStream(jobject AlluxioOutStream);
+    Status close();
+    Status write(char b);
+    Status write(const char* buf, size_t off, size_t len);
+    Status flush();
+    Status cancel();
+        ~FileOutStream();
 
-    protected:
+protected:
 
-    private:
-        jobject outStream;
-        JniHelper::LocalRefMapType localRefs;
+private:
+    jobject outStream;
+    JniHelper::LocalRefMapType localRefs;
 
 };
 

@@ -9,7 +9,7 @@ FileInStream::FileInStream()
 
 FileInStream::FileInStream(jobject AlluxioInStream)
 {
-        FileInStream::inStream =AlluxioInStream;
+    FileInStream::inStream =AlluxioInStream;
 
 }
 
@@ -26,19 +26,20 @@ Status FileInStream::read(char* b)
 }
 
 
-      Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* result) {
-          JNIEnv *env = JniHelper::getEnv();
+Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* result)
+{
+    JNIEnv *env = JniHelper::getEnv();
     jbyteArray jbytearrays = env->NewByteArray(strlen(buf));
     env->SetByteArrayRegion(jbytearrays, 0, strlen(buf), (jbyte*)buf);
 
-    int i  = JniHelper::callIntMethod( "([B)I", FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, off, len);
+    *result  = JniHelper::callIntMethod( FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, off, len);
     //delete [] b;
     buf =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);
 
-      Status stus =  JniHelper::exceptionCheck( );
+    Status stus =  JniHelper::exceptionCheck( );
     return stus;
-      }
-           // Status seek(size_t pos);
-          //  Status skip(size_t pos);
+}
+// Status seek(size_t pos);
+//  Status skip(size_t pos);
 

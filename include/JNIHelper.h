@@ -78,20 +78,22 @@ public:
     static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
-    static void callVoidMethod(const std::string& default_signature,  jobject& obj, const std::string& className,
+    static void callVoidMethod( jobject& obj, const std::string& className,
                                const std::string& methodName,
                                Ts... xs)
     {
         JniMethodInfo t;
-        std::string signature ;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+        /*
         if(default_signature.length() != 0 )
         {
             signature = default_signature;
         }
         else
         {
-            signature =signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+            signature  = "(" + std::string(getJNISignature(xs...)) + ")V";
         }
+        */
 
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
@@ -107,13 +109,14 @@ public:
     }
 
     template <typename... Ts>
-    static jobject callObjectMethod(const std::string& default_signature,  jobject& obj, const std::string& className,
+    static jobject callObjectMethod( jobject& obj, const std::string& className,
                                     const std::string& methodName, const std::string& returnClassName,
                                     Ts... xs)
     {
         jobject res;
         JniMethodInfo t;
-        std::string signature;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+        /*
         if(default_signature.length() != 0 )
         {
             signature = default_signature;
@@ -121,6 +124,7 @@ public:
         else {
             signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
         }
+        */
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
             LocalRefMapType localRefs;
@@ -184,9 +188,9 @@ public:
     }
 
     template <typename... Ts>
-    static int callIntMethod( const std::string& className, const std::string& methodName, Ts... xs)
+    static int callIntMethod(jobject obj, const std::string& className, const std::string& methodName, Ts... xs)
     {
-/*
+
         jint jret;
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
@@ -202,8 +206,6 @@ public:
             reportError(className, methodName, signature);
         }
         return (int)jret;
-        */
-        return 0;
 
     }
 
@@ -270,7 +272,7 @@ public:
 
     static std::string getObjectClassName(jobject obj)
     {
-        jobject classObj = JniHelper::callObjectMethod("", obj, "java/lang/Object", "getClass", "java/lang/Class");
+        jobject classObj = JniHelper::callObjectMethod( obj, "java/lang/Object", "getClass", "java/lang/Class");
         std::string  className = JniHelper::callStringMethod(classObj, "java/lang/Class", "getName");
         JniHelper::getEnv()->DeleteLocalRef(classObj);
         return className;
@@ -374,7 +376,7 @@ public:
             }
             jobject StatusException = JniHelper::callStaticObjectMethod("(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
             , "alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/AlluxioException", (jobject)exc);
-            jobject statusInAlluxio = JniHelper::callObjectMethod("", (jobject& )exc,
+            jobject statusInAlluxio = JniHelper::callObjectMethod((jobject& )exc,
                 "alluxio/exception/status/StatusException", "getStatus","alluxio/exception/status/Status");
             std::string statusName = JniHelper::callStringMethod((jobject)exc, "java/lang/enum", "name");
              return getStatusFromJavaException(statusName, errorMsg);
@@ -451,7 +453,8 @@ private:
 
     static std::string getJNISignature(const char*)
     {
-        return "Ljava/lang/String;";
+       // return "Ljava/lang/String;";
+       return "[B";
     }
 
     static std::string getJNISignature(const std::string&)
