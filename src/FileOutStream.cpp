@@ -30,13 +30,22 @@ Status FileOutStream::write(const char* buf, size_t off, size_t len)
     jbyteArray jbytearrays = env->NewByteArray(byteLen);
     env->SetByteArrayRegion(jbytearrays, 0, byteLen, (jbyte*)buf);
   //  std::cout<<strlen(b)<< "      "<<b<<std::endl;
-    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream", "write", jbytearrays, off, len);
+    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream", "write", jbytearrays, (int)off, (int)len);
     FileOutStream::localRefs[env].push_back(jbytearrays);
+    return JniHelper::exceptionCheck();
+}
+
+Status FileOutStream::flush() {
+    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream", "flush");
+    return JniHelper::exceptionCheck();
+}
+
+Status FileOutStream::cancel() {
+    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream", "cancel");
     return JniHelper::exceptionCheck();
 }
 
 Status FileOutStream::close() {
     JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream", "close");
-        return JniHelper::exceptionCheck();
-
+    return JniHelper::exceptionCheck();
 }

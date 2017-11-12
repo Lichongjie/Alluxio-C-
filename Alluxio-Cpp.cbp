@@ -36,9 +36,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="include/Exceptions.hpp">
-			<Option link="1" />
-		</Unit>
 		<Unit filename="include/FileInStream.h" />
 		<Unit filename="include/FileOutStream.h" />
 		<Unit filename="include/FileSystem.h" />

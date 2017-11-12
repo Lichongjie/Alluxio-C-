@@ -32,7 +32,7 @@ Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* resul
     jbyteArray jbytearrays = env->NewByteArray(strlen(buf));
     env->SetByteArrayRegion(jbytearrays, 0, strlen(buf), (jbyte*)buf);
 
-    *result  = JniHelper::callIntMethod( FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, off, len);
+    *result  = JniHelper::callIntMethod( FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, (int)off, (int)len);
     //delete [] b;
     buf =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);
@@ -40,6 +40,15 @@ Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* resul
     Status stus =  JniHelper::exceptionCheck( );
     return stus;
 }
-// Status seek(size_t pos);
-//  Status skip(size_t pos);
+
+Status FileInStream::seek(size_t pos) {
+    JniHelper::callVoidMethod(FileInStream::inStream, "alluxio/FileSystem/file/FileInStream", "seek", (long)pos);
+    return JniHelper::exceptionCheck( );
+
+}
+
+Status FileInStream::skip(size_t pos){
+    JniHelper::callVoidMethod(FileInStream::inStream, "alluxio/FileSystem/file/FileInStream", "skip", (long)pos);
+    return JniHelper::exceptionCheck( );
+}
 
