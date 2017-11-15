@@ -18,7 +18,7 @@
 
 //NS_CC_BEGIN
 
-#define CLASSPATH_ALLUXIO_JAR "/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar"
+//#define CLASSPATH_ALLUXIO_JAR "/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar"
 
 static std::map<jobject, const std::string>  mObjectToTypeNameMap;
 
@@ -67,7 +67,6 @@ public:
        // classpathString.append(CLASSPATH_ALLUXIO_JAR);
 
         options[0].optionString = const_cast<char *>(classpathString.c_str());
-        cout<<"option  ：       "<<options[0].optionString <<endl;
 
         //options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
       //  options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
@@ -87,6 +86,7 @@ public:
     static void finish()
     {
         getJavaVM()->DestroyJavaVM();
+        mObjectToTypeNameMap.clear();
     }
 
     static bool setClassLoaderFrom(jobject activityInstance);
@@ -515,7 +515,7 @@ private:
         {
             return "L" + (std::string) itr->second + ";";
         }
-        return "";
+        return getObjectClassName(obj);
     }
 
 

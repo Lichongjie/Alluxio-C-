@@ -67,7 +67,7 @@ Status FileSystem::createFile(const std::string& path,  FileOutStream** outStrea
     return JniHelper::exceptionCheck();
 
 }
-Status FileSystem::createFile(const std::string& path, CreateFileOptions& options,  FileOutStream** outStream)
+Status FileSystem::createFile(const std::string& path, const CreateFileOptions& options,  FileOutStream** outStream)
 {
 
 
@@ -77,7 +77,7 @@ Status FileSystem::deletePath(const std::string& path)
     return callJNIBydefaultOpt(path, "delete");
 }
 
-Status FileSystem::deletePath(const std::string& path, DeleteOptions& options)
+Status FileSystem::deletePath(const std::string& path, const DeleteOptions& options)
 {
 
 }
@@ -94,7 +94,7 @@ Status FileSystem::exists(const std::string& path, bool* result)
 }
 
 
-Status FileSystem::exists(const std::string& path, ExistsOptions& options, bool* result)
+Status FileSystem::exists(const std::string& path, const ExistsOptions& options, bool* result)
 {
 
 
@@ -105,7 +105,7 @@ Status FileSystem::free(const std::string& path)
     return callJNIBydefaultOpt(path, "free");
 }
 
-Status FileSystem::free(const std::string& path, FreeOptions& options)
+Status FileSystem::free(const std::string& path, const FreeOptions& options)
 {
 
 
@@ -122,7 +122,7 @@ Status FileSystem::getStatus(const std::string& path, URIStatus* result)
 
 }
 
-Status FileSystem::getStatus(const std::string& path, GetStatusOptions& options, URIStatus* result)
+Status FileSystem::getStatus(const std::string& path, const GetStatusOptions& options, URIStatus* result)
 {
 
 
@@ -146,7 +146,7 @@ Status FileSystem::listStatus(const std::string& path, vector<URIStatus>* result
     return JniHelper::exceptionCheck();
 }
 
-Status FileSystem::listStatus(const std::string& path, ListStatusOptions& options, vector<URIStatus>* result)
+Status FileSystem::listStatus(const std::string& path, const ListStatusOptions& options, vector<URIStatus>* result)
 {
 
 }
@@ -161,7 +161,7 @@ Status FileSystem::mount(const std::string& alluxioPath, const std::string& ufsP
     return callJNIBydefaultOpt(alluxioPath, ufsPath, "mount");
 }
 
-Status FileSystem::mount(const std::string& alluxioPath, const std::string& ufsPath, MountOptions& options)
+Status FileSystem::mount(const std::string& alluxioPath, const std::string& ufsPath, const MountOptions& options)
 {
 
 
@@ -180,7 +180,7 @@ Status FileSystem::openFile(const std::string& path, FileInStream** inStream)
     return stus;
 }
 
-Status FileSystem::openFile(const std::string& path, OpenFileOptions& options, FileInStream** inStream)
+Status FileSystem::openFile(const std::string& path, const OpenFileOptions& options, FileInStream** inStream)
 {
 
 }
@@ -191,7 +191,7 @@ Status FileSystem::rename(const std::string& src, const std::string& dst)
 
 }
 
-Status FileSystem::rename(const std::string& src, const std::string& dst, RenameOptions& options)
+Status FileSystem::rename(const std::string& src, const std::string& dst, const RenameOptions& options)
 {
 
 
@@ -203,7 +203,7 @@ Status FileSystem::setAttribute(const std::string& path)
     return callJNIBydefaultOpt(path, "mount");
 }
 
-Status FileSystem::setAttribute(const std::string& path, SetAttributeOptions& options)
+Status FileSystem::setAttribute(const std::string& path, const SetAttributeOptions& options)
 {
     return callJNIBydefaultOpt(path, "setAttribute");
 
@@ -216,7 +216,7 @@ Status FileSystem::unmount(const std::string& path)
 
 }
 
-Status FileSystem::unmount(const std::string& path, UnmountOptions& options)
+Status FileSystem::unmount(const std::string& path, const UnmountOptions& options)
 {
 
 }
