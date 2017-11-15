@@ -19,7 +19,7 @@ FileOutStream::~FileOutStream()
 
 Status FileOutStream::write(char b)
 {
-    return FileOutStream::write((const char*)b, 0, 1);
+    return FileOutStream::write(&b, 0, 1);
 
 }
 

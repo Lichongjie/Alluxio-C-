@@ -8,6 +8,10 @@
 .libs/
 build/
 bin/
+obj/
+*.m4
+*.in
+build/
 .idea/
 *.depend
 *.layout

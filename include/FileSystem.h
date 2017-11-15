@@ -1,7 +1,6 @@
 #ifndef FileSystem_H
 #define FileSystem_H
 #include "JNIHelper.h"
-#include "Exceptions.hpp"
 #include "Options.hpp"
 #include "FileOutStream.h"
 #include "FileInStream.h"

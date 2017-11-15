@@ -1,6 +1,5 @@
 #ifndef FILEOUTSTREAM_H
 #define FILEOUTSTREAM_H
-#include"Exceptions.hpp"
 #include<JNIHelper.h>
 
 

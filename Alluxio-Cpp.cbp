@@ -39,6 +39,7 @@
 		<Unit filename="include/FileInStream.h" />
 		<Unit filename="include/FileOutStream.h" />
 		<Unit filename="include/FileSystem.h" />
+		<Unit filename="include/FileSystemTest.h" />
 		<Unit filename="include/JNIHelper.h" />
 		<Unit filename="include/Options.hpp" />
 		<Unit filename="include/Status.h" />
@@ -47,8 +48,10 @@
 		<Unit filename="src/FileInStream.cpp" />
 		<Unit filename="src/FileOutStream.cpp" />
 		<Unit filename="src/FileSystem.cpp" />
+		<Unit filename="src/FileSystemTest.cpp" />
 		<Unit filename="src/JNIHelper.cpp" />
 		<Unit filename="src/Status.cpp" />
+		<Unit filename="src/main.cpp" />
 		<Unit filename="test.cpp" />
 		<Extensions>
 			<code_completion />

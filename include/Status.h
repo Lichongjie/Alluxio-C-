@@ -4,7 +4,6 @@
 #include<cstring>
  #include <assert.h>
 
-
 class Status
 {
 public:
@@ -17,6 +16,7 @@ public:
 
     // Copy the specified status.
     Status(const Status& s);
+
     void operator=(const Status& s);
 
     static Status OK()
@@ -95,6 +95,9 @@ public:
     {
         return (state_ == NULL);
     }
+
+
+
     // Returns true iff the status indicates a NotFound error.
     /*
     bool IsNotFound() const
@@ -113,8 +116,6 @@ private:
     //    state_[4]    == code
     //    state_[5..]  == message
     const char* state_;
-    void* result;
-
 
     enum Code
     {
@@ -143,7 +144,7 @@ private:
         return (state_ == NULL) ? SUCCESS : static_cast<Code>(state_[4]);
     }
 
-    Status(Code code, const std::string& msg);         // 内部构造函数
+    Status(Code code, const std::string& msg) ;        // 内部构造函数
     static const char* CopyState(const char* s);                        //
 };
 

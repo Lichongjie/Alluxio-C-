@@ -10,14 +10,20 @@
 #include <stdio.h>
 #include <string.h>
 #include<iostream>
-#include "Exceptions.hpp"
 #include<Status.h>
+#include<map>
+#include<Wire.hpp>
 //#include "platform/CCPlatformMacros.h"
 //#include "math/Vec3.h"
 
 //NS_CC_BEGIN
 
+#define CLASSPATH_ALLUXIO_JAR "/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar"
+
+static std::map<jobject, const std::string>  mObjectToTypeNameMap;
+
 using namespace std;
+
 
 typedef struct JniMethodInfo_
 {
@@ -42,8 +48,31 @@ public:
         JavaVM *jvm;
         JavaVMOption options[1];
         JavaVMInitArgs vm_args;
+
+        char *classpath = getenv("CLASSPATH");
+        if (classpath == NULL)
+        {
+            throw std::runtime_error("CLASSPATH env variable is not set");
+        }
+        const char *classpath_opt = "-Djava.class.path=";
+        size_t cp_len = strlen(classpath) + strlen(classpath_opt) + 1;
+
+        // Construct the CLASSPATH argument.  We add in the alluxio jar, as well
+        // as the Jackson jars
+        std::string classpathString(classpath_opt);
+        classpathString.append(classpath);
+
+        // For base alluxio support
+      //  classpathString.append(":");
+       // classpathString.append(CLASSPATH_ALLUXIO_JAR);
+
+        options[0].optionString = const_cast<char *>(classpathString.c_str());
+        cout<<"option  ：       "<<options[0].optionString <<endl;
+
         //options[0].optionString = "-Djava.class.path=/home/innkp/Alluxio-Cpp";
-        options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/FileSystem/target/alluxio-assembly-FileSystem-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
+      //  options[0].optionString = "-Djava.class.path=/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
+     //  options[0].optionString = "-Djava.class.path=./:/home/innkp/jdk1.8.0_144/lib/dt.jar:$HOME/jdk1.8.0_144/lib/tools.jar:/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar";
+
         memset(&vm_args, 0, sizeof(vm_args));
         vm_args.version = JNI_VERSION_1_8;
         vm_args.nOptions = 1;
@@ -58,7 +87,6 @@ public:
     static void finish()
     {
         getJavaVM()->DestroyJavaVM();
-
     }
 
     static bool setClassLoaderFrom(jobject activityInstance);
@@ -79,8 +107,8 @@ public:
 
     template <typename... Ts>
     static void callVoidMethod( jobject& obj, const std::string& className,
-                               const std::string& methodName,
-                               Ts... xs)
+                                const std::string& methodName,
+                                Ts... xs)
     {
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
@@ -108,14 +136,17 @@ public:
         }
     }
 
+
+
     template <typename... Ts>
     static jobject callObjectMethod( jobject& obj, const std::string& className,
-                                    const std::string& methodName, const std::string& returnClassName,
-                                    Ts... xs)
+                                     const std::string& methodName, const std::string& returnClassName,
+                                     Ts... xs)
     {
         jobject res;
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
+
         /*
         if(default_signature.length() != 0 )
         {
@@ -125,6 +156,7 @@ public:
             signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
         }
         */
+        cout<<signature<<endl;
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
             LocalRefMapType localRefs;
@@ -137,8 +169,10 @@ public:
             reportError(className, methodName, signature);
             return NULL;
         }
+        add(res, returnClassName);
         return res;
     }
+
 
 
     template <typename... Ts>
@@ -162,6 +196,9 @@ public:
             reportError(className, methodName, signature);
             return 0;
         }
+        add(res,className );
+        //   mObjectToTypeNameMap.insert(std::make_pair(res, className));
+
         return res;
     }
 
@@ -214,15 +251,15 @@ public:
                                           const std::string& methodName, const std::string& returnClassName,
                                           Ts... xs)
     {
-
         jobject ret;
         JniMethodInfo t;
         std::string signature;
-         if(default_signature.length() != 0 )
+        if(default_signature.length() != 0 )
         {
             signature = default_signature;
         }
-        else {
+        else
+        {
             signature  = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
         }
 
@@ -238,6 +275,7 @@ public:
         {
             reportError(className, methodName, signature);
         }
+        add(ret, returnClassName) ;
         return ret;
     }
 
@@ -283,74 +321,73 @@ public:
     static Status getStatusFromJavaException(const std::string& statusName, const std::string& errorMsg)
     {
         using namespace std;
-        Status status;
         if(statusName.compare("CANCELED") == 0)
         {
-            status  =  Status::canceled(errorMsg);
+            return  Status::canceled(errorMsg);
 
         }
         else if(statusName.compare("UNKNOWN") == 0)
         {
-            status  =  Status::unknown(errorMsg);
+            return  Status::unknown(errorMsg);
         }
         else if(statusName.compare("INVALID_ARGUMENT") == 0)
         {
-            status  =  Status::invalidArgument(errorMsg);
+            return  Status::invalidArgument(errorMsg);
         }
         else if(statusName.compare("DEADLINE_EXCEEDED") == 0)
         {
-            status  =  Status::deadlineExceeded(errorMsg);
+            return  Status::deadlineExceeded(errorMsg);
         }
         else if(statusName.compare("NOT_FOUND") == 0)
         {
-            status  =  Status::notFound(errorMsg);
+            return  Status::notFound(errorMsg);
         }
         else if(statusName.compare("ALREADY_EXISTS") == 0)
         {
-            status  =  Status::alreadyExist(errorMsg);
+            return  Status::alreadyExist(errorMsg);
         }
         else if(statusName.compare("PERMISSION_DENIED") == 0)
         {
-            status  =  Status::permissionDenied(errorMsg);
+            return  Status::permissionDenied(errorMsg);
         }
         else if(statusName.compare("UNAUTHENTICATED") == 0)
         {
-            status  =  Status::unAuthenticated(errorMsg);
+            return  Status::unAuthenticated(errorMsg);
         }
         else if(statusName.compare("RESOURCE_EXHAUSTED") == 0)
         {
-            status  =  Status::resourceExhausted(errorMsg);
+            return Status::resourceExhausted(errorMsg);
         }
         else if(statusName.compare("FAILED_PRECONDITION") == 0)
         {
-            status  =  Status::failedPrecondition(errorMsg);
+            return  Status::failedPrecondition(errorMsg);
         }
         else if(statusName.compare("ABORTED") == 0)
         {
-            status  =  Status::aborted(errorMsg);
+            return  Status::aborted(errorMsg);
         }
         else if(statusName.compare("OUT_OF_RANGE") == 0)
         {
-            status  =  Status::outOfRange(errorMsg);
+            return Status::outOfRange(errorMsg);
         }
         else if(statusName.compare("UNIMPLEMENTED") == 0)
         {
-            status  =  Status::unImplemented(errorMsg);
+            return  Status::unImplemented(errorMsg);
         }
         else if(statusName.compare("INTERNAL") == 0)
         {
-            status  =  Status::internal(errorMsg);
+            return  Status::internal(errorMsg);
         }
         else if(statusName.compare("UNAVAILABLE") == 0)
         {
-            status  =  Status::unavailable(errorMsg);
+            return  Status::unavailable(errorMsg);
         }
         else if(statusName.compare("DATA_LOSS") == 0)
         {
-            status  =  Status::dataLoss(errorMsg);
+            return  Status::dataLoss(errorMsg);
         }
 
-        return status;
+        return Status::OK();
 
     };
 
@@ -369,20 +406,24 @@ public:
             env->ExceptionClear();
             std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
             std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable", "getMessage");
-            if(exceptionName.compare("alluxio/exception/FileDoesNotExistException") == 0 ) {
+            if(exceptionName.compare("alluxio/exception/FileDoesNotExistException") == 0 )
+            {
                 return Status::notFound(errorMsg);
-            } else if(exceptionName.compare("alluxio/exception/UnavailableException") == 0) {
+            }
+            else if(exceptionName.compare("alluxio/exception/UnavailableException") == 0)
+            {
                 return Status::unavailable(errorMsg);
             }
             jobject StatusException = JniHelper::callStaticObjectMethod("(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
-            , "alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/AlluxioException", (jobject)exc);
+                                      , "alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/status/StatusException", (jobject)exc);
             jobject statusInAlluxio = JniHelper::callObjectMethod((jobject& )exc,
-                "alluxio/exception/status/StatusException", "getStatus","alluxio/exception/status/Status");
+                                      "alluxio/exception/status/StatusException", "getStatus","alluxio/exception/status/Status");
             std::string statusName = JniHelper::callStringMethod((jobject)exc, "java/lang/enum", "name");
-             return getStatusFromJavaException(statusName, errorMsg);
+            return getStatusFromJavaException(statusName, errorMsg);
             // env->ThrowNew(newExcCls, "thrown from C code");
         }
-        else {
+        else
+        {
             return Status();
         }
     }
@@ -399,6 +440,11 @@ private:
     static JavaVM* _psJavaVM;
 
     static jobject _activity;
+
+    static void add(jobject obj, const std::string& classname)
+    {
+        mObjectToTypeNameMap.insert(std::make_pair(obj, classname));
+    }
 
     static jstring convert(LocalRefMapType& localRefs, JniMethodInfo& t, const char* x);
 
@@ -453,14 +499,25 @@ private:
 
     static std::string getJNISignature(const char*)
     {
-       // return "Ljava/lang/String;";
-       return "[B";
+        // return "Ljava/lang/String;";
+        return "[B";
     }
 
     static std::string getJNISignature(const std::string&)
     {
         return "Ljava/lang/String;";
     }
+
+    static std::string getJNISignature(jobject& obj)
+    {
+        std::map<jobject, const std::string>::iterator itr = mObjectToTypeNameMap.find(obj);
+        if( itr != mObjectToTypeNameMap.end() )
+        {
+            return "L" + (std::string) itr->second + ";";
+        }
+        return "";
+    }
+
 
     template <typename T>
     static std::string getJNISignature(T x)
@@ -469,14 +526,14 @@ private:
         // static_assert(sizeof(x) == 0, "Unsupported argument type");
         return "";
     }
-
     template <typename T, typename... Ts>
     static std::string getJNISignature(T x, Ts... xs)
     {
+
         return getJNISignature(x) + getJNISignature(xs...);
     }
-
     static void reportError(const std::string& className, const std::string& methodName, const std::string& signature);
+
 
 
 };

@@ -199,6 +199,7 @@ bool JniHelper::getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
         const char *methodName,
         const char *paramCode)
 {
+
     if ((nullptr == className) ||
             (nullptr == methodName) ||
             (nullptr == paramCode))
@@ -348,6 +349,8 @@ void JniHelper::reportError(const std::string& className, const std::string& met
 {
     //    LOGE("Failed to find static java method. Class name: %s, method name: %s, signature: %s ",  className.c_str(), methodName.c_str(), signature.c_str());
 }
+
+
 
 
 
