@@ -17,6 +17,7 @@ build/
 *.layout
 *~
 *.0
+*.cbp
 
 *-stamp
 
