@@ -31,8 +31,7 @@ Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* resul
     JNIEnv *env = JniHelper::getEnv();
     jbyteArray jbytearrays = env->NewByteArray(strlen(buf));
     env->SetByteArrayRegion(jbytearrays, 0, strlen(buf), (jbyte*)buf);
-
-    *result  = JniHelper::callIntMethod( FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, (int)off, (int)len);
+    *result  = JniHelper::callIntMethod(FileInStream::inStream,  "alluxio/FileSystem/file/FileInStream", "read",  &jbytearrays, (int)off, (int)len);
     //delete [] b;
     buf =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
     FileInStream::localRefs[env].push_back(jbytearrays);

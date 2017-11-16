@@ -2,6 +2,8 @@
 #define FILEOUTSTREAM_H
 #include<JNIHelper.h>
 
+namespace alluxio
+{
 
 class FileOutStream
 {
@@ -13,7 +15,7 @@ public:
     Status write(const char* buf, size_t off, size_t len);
     Status flush();
     Status cancel();
-        ~FileOutStream();
+    ~FileOutStream();
 
 protected:
 
@@ -22,5 +24,6 @@ private:
     JniHelper::LocalRefMapType localRefs;
 
 };
+}
 
 #endif // FILEOUTSTREAM_H

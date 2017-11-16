@@ -13,7 +13,6 @@ public:
     {
         delete[] state_;    // 析构函数，释放状态字符串
     }
-
     // Copy the specified status.
     Status(const Status& s);
 
@@ -75,7 +74,6 @@ public:
     static Status unImplemented(const std::string& msg)
     {
         return  Status(UNIMPLEMENTED, msg);
-
     }
     static Status internal(const std::string& msg)
     {
@@ -95,8 +93,6 @@ public:
     {
         return (state_ == NULL);
     }
-
-
 
     // Returns true iff the status indicates a NotFound error.
     /*
@@ -139,13 +135,13 @@ private:
         SUCCESS = 16
     };
 
-    Code code() const                                           // 返回状态码
+    Code code() const
     {
         return (state_ == NULL) ? SUCCESS : static_cast<Code>(state_[4]);
     }
 
-    Status(Code code, const std::string& msg) ;        // 内部构造函数
-    static const char* CopyState(const char* s);                        //
+    Status(Code code, const std::string& msg) ;
+    static const char* CopyState(const char* s);
 };
 
 #endif // STATUS_H

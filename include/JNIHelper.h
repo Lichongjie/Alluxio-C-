@@ -1,5 +1,5 @@
-#ifndef __ANDROID_JNI_HELPER_H__
-#define __ANDROID_JNI_HELPER_H__
+#ifndef   JNI_HELPER_H__
+#define  JNI_HELPER_H__
 
 #include <jni.h>
 #include <string>
@@ -12,13 +12,7 @@
 #include<iostream>
 #include<Status.h>
 #include<map>
-#include<Wire.hpp>
-//#include "platform/CCPlatformMacros.h"
-//#include "math/Vec3.h"
-
-//NS_CC_BEGIN
-
-//#define CLASSPATH_ALLUXIO_JAR "/home/innkp/pasa/tachyon/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar"
+#include<Wire.h>
 
 static std::map<jobject, const std::string>  mObjectToTypeNameMap;
 
@@ -384,9 +378,7 @@ public:
         jboolean error = env->ExceptionCheck();
         if(error)
         {
-            //输出异常
             env->ExceptionDescribe();
-            //清除异常
             env->ExceptionClear();
             std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
             std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable", "getMessage");
@@ -518,6 +510,5 @@ private:
     static void reportError(const std::string& className, const std::string& methodName, const std::string& signature);
 
 };
-//NS_CC_END
-#endif // __ANDROID_JNI_HELPER_H__
+#endif //JNI_HELPER_H__
 

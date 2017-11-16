@@ -4,7 +4,7 @@
 #include "Options.hpp"
 #include "FileOutStream.h"
 #include "FileInStream.h"
-#include "Wire.hpp"
+#include "Wire.h"
 #include <list>
 #include <map>
 #include <Status.h>
@@ -12,6 +12,7 @@
 
 using namespace alluxio;
 
+namespace alluxio {
 class FileSystem
 {
 public:
@@ -49,5 +50,6 @@ private:
     Status callJNIBydefaultOpt(const std::string& path, const std::string& methodName);
     Status callJNIBydefaultOpt(const std::string& src, const std::string&dst, const std::string& methodName);
 };
+}
 
 #endif // FileSystem_H
