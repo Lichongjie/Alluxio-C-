@@ -8,5 +8,5 @@ FileInfo::FileInfo()
 FileInfo::~FileInfo()
 {
     //dtor
-    
+
 }

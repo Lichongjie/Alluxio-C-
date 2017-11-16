@@ -39,16 +39,6 @@
     </properties>
   </component>
   <component name="ProjectRootManager" version="2" default="true" />
-  <component name="SbtLocalSettings">
-    <option name="modificationStamps">
-      <map>
-        <entry key="E:/项目/ROBUS" value="1510486618578" />
-      </map>
-    </option>
-    <option name="externalProjectsViewState">
-      <projects_view />
-    </option>
-  </component>
   <component name="masterDetails">
     <states>
       <state key="ProjectJDKs.UI">
