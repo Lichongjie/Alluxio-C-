@@ -4,7 +4,7 @@
 class FileInfo {
 
 public:
-    FileInfo(){
+    FileInfo() {
 
     };
     ~FileInfo() {
@@ -52,12 +52,12 @@ public:
 
 class URIStatus {
 public:
-URIStatus(jobject URIStatus) {
-jURIStatus = URIStatus;
-}
+    URIStatus(jobject URIStatus) {
+        jURIStatus = URIStatus;
+    }
 
 private:
-jobject jURIStatus;
+    jobject jURIStatus;
 
 
 };

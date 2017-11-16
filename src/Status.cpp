@@ -1,20 +1,16 @@
 #include "Status.h"
 
-inline Status::Status(const Status& s)
-{
+inline Status::Status(const Status& s) {
     state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
 }
-inline void Status::operator=(const Status& s)
-{
-    if (state_ != s.state_)
-    {
+inline void Status::operator=(const Status& s) {
+    if (state_ != s.state_) {
         delete[] state_;
         state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
     }
 }
 
-const char* Status::CopyState(const char* state)
-{
+const char* Status::CopyState(const char* state) {
     uint32_t size;
     memcpy(&size, state, sizeof(size));
     uint32_t len = size + sizeof(size) + 1 ;
@@ -23,8 +19,7 @@ const char* Status::CopyState(const char* state)
     return result;
 }
 
-Status::Status(Code code, const std::string& msg)
-{
+Status::Status(Code code, const std::string& msg) {
     assert(code != SUCCESS);
     const uint32_t len = msg.length();
     const uint32_t size = len;
@@ -36,18 +31,13 @@ Status::Status(Code code, const std::string& msg)
     state_ = result;
 }
 
-std::string Status::ToString() const
-{
-    if (state_ == NULL)
-    {
+std::string Status::ToString() const {
+    if (state_ == NULL) {
         return "OK";
-    }
-    else
-    {
+    } else {
         char tmp[30];
         const char* type;
-        switch (code())
-        {
+        switch (code()) {
         case CANCELED:
             type = "CanceledError";
             break;

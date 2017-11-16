@@ -2,25 +2,21 @@
 
 using namespace alluxio;
 
-FileOutStream::FileOutStream(jobject AlluxioOutStream)
-{
+FileOutStream::FileOutStream(jobject AlluxioOutStream) {
     FileOutStream::outStream = AlluxioOutStream;
 
 }
 
-FileOutStream::~FileOutStream()
-{
+FileOutStream::~FileOutStream() {
 
 }
 
-Status FileOutStream::write(char b)
-{
+Status FileOutStream::write(char b) {
     return FileOutStream::write(&b, 0, 1);
 
 }
 
-Status FileOutStream::write(const char* buf, size_t off, size_t len)
-{
+Status FileOutStream::write(const char* buf, size_t off, size_t len) {
     int byteLen = strlen(buf);
     JNIEnv *env = JniHelper::getEnv();
     jbyteArray jbytearrays = env->NewByteArray(byteLen);

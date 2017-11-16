@@ -12,11 +12,9 @@
 
 using namespace alluxio;
 
-namespace alluxio
-{
+namespace alluxio {
 // Basic file system interface supporting metadata operations and data operations
-class FileSystem
-{
+class FileSystem {
 public:
     // Constructor of FileSystem
     FileSystem();
@@ -83,7 +81,7 @@ public:
     Status unmount(const std::string& path, const UnmountOptions& options);
     void closeFileSystem();
     ~FileSystem();
-    
+
 private:
     jobject filesystem;
     JniHelper::LocalRefMapType localRefs;

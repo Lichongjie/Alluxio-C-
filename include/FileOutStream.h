@@ -4,11 +4,9 @@
 using namespace JNIHelper;
 
 
-namespace alluxio
-{
+namespace alluxio {
 
-class FileOutStream
-{
+class FileOutStream {
 public:
     FileOutStream(jobject AlluxioOutStream);
     Status close();

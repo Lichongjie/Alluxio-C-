@@ -2,15 +2,13 @@
 #define STATUS_H
 #include <string>
 #include<cstring>
- #include <assert.h>
+#include <assert.h>
 
-class Status
-{
+class Status {
 public:
     // Create a success status.
     Status() : state_(NULL) { }                     // 构造函数，默认状态为success
-    ~Status()
-    {
+    ~Status() {
         delete[] state_;    // 析构函数，释放状态字符串
     }
     // Copy the specified status.
@@ -18,79 +16,60 @@ public:
 
     void operator=(const Status& s);
 
-    static Status OK()
-    {
+    static Status OK() {
         return   Status();    // 返回一个success的状态
     }
 
-    static Status canceled(const std::string& msg)
-    {
+    static Status canceled(const std::string& msg) {
         return  Status(CANCELED, msg );
     }
-    static Status unknown(const std::string& msg)
-    {
+    static Status unknown(const std::string& msg) {
         return Status(UNKNOWN, msg);
     }
-    static Status invalidArgument(const std::string& msg)
-    {
+    static Status invalidArgument(const std::string& msg) {
         return Status(INVALID_ARGUMENT, msg);
     }
-    static Status deadlineExceeded(const std::string& msg)
-    {
+    static Status deadlineExceeded(const std::string& msg) {
         return Status(DEADLINE_EXCEEDED, msg);
     }
-    static Status notFound(const std::string& msg)
-    {
+    static Status notFound(const std::string& msg) {
         return Status(NOT_FOUND, msg);
     }
-    static Status alreadyExist(const std::string& msg)
-    {
+    static Status alreadyExist(const std::string& msg) {
         return Status(ALREADY_EXISTS, msg);
     }
-    static Status permissionDenied(const std::string& msg)
-    {
+    static Status permissionDenied(const std::string& msg) {
         return Status(PERMISSION_DENIED, msg);
     }
-    static Status unAuthenticated(const std::string& msg)
-    {
+    static Status unAuthenticated(const std::string& msg) {
         return  Status(UNAUTHENTICATED, msg);
     }
-    static Status resourceExhausted(const std::string& msg)
-    {
+    static Status resourceExhausted(const std::string& msg) {
         return  Status(RESOURCE_EXHAUSTED, msg);
     }
-    static Status failedPrecondition(const std::string& msg)
-    {
+    static Status failedPrecondition(const std::string& msg) {
         return  Status(FAILED_PRECONDITION, msg);
     }
-    static Status aborted(const std::string& msg)
-    {
+    static Status aborted(const std::string& msg) {
         return  Status(ABORTED, msg);
     }
-    static Status outOfRange(const std::string& msg)
-    {
+    static Status outOfRange(const std::string& msg) {
         return  Status(OUT_OF_RANGE, msg);
     }
-    static Status unImplemented(const std::string& msg)
-    {
+    static Status unImplemented(const std::string& msg) {
         return  Status(UNIMPLEMENTED, msg);
     }
-    static Status internal(const std::string& msg)
-    {
+    static Status internal(const std::string& msg) {
         return Status(INTERNAL, msg);
     }
-    static Status unavailable(const std::string& msg)
-    {
+    static Status unavailable(const std::string& msg) {
         return Status(UNAVAILABLE, msg);
     }
-    static Status dataLoss(const std::string& msg)
-    {
+    static Status dataLoss(const std::string& msg) {
         return  Status(DATA_LOSS, msg);
     }
 
-
-    bool ok() const
-    {
+    bool ok() const {
         return (state_ == NULL);
     }
 
@@ -113,8 +92,7 @@ private:
     //    state_[5..]  == message
     const char* state_;
 
-    enum Code
-    {
+    enum Code {
 
         CANCELED = 0,
         UNKNOWN = 1,
@@ -135,8 +113,7 @@ private:
         SUCCESS = 16
     };
 
-    Code code() const
-    {
+    Code code() const {
         return (state_ == NULL) ? SUCCESS : static_cast<Code>(state_[4]);
     }
 
