@@ -47,8 +47,8 @@ public:
 private:
     jobject filesystem;
     jobject createAlluxioURI(const std::string& path);
-    Status callJNIBydefaultOpt(const std::string& path, const std::string& methodName);
-    Status callJNIBydefaultOpt(const std::string& src, const std::string&dst, const std::string& methodName);
+    Status callJNIBydefaultOption(const std::string& path, const std::string& methodName);
+    Status callJNIBydefaultOption(const std::string& src, const std::string&dst, const std::string& methodName);
 };
 }
 

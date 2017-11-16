@@ -1,13 +1,11 @@
 #include "Status.h"
 
-inline Status::Status(const Status& s)                             // 拷贝构造函数
+inline Status::Status(const Status& s)
 {
     state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
 }
-inline void Status::operator=(const Status& s)                          // 赋值运算符重载
+inline void Status::operator=(const Status& s)
 {
-    // The following condition catches both aliasing (when this == &s),
-    // and the common case where both s and *this are ok.
     if (state_ != s.state_)
     {
         delete[] state_;
@@ -15,7 +13,7 @@ inline void Status::operator=(const Status& s)                          // 赋�
     }
 }
 
-const char* Status::CopyState(const char* state)                          // 复制状态字符串
+const char* Status::CopyState(const char* state)
 {
     uint32_t size;
     memcpy(&size, state, sizeof(size));
@@ -25,20 +23,20 @@ const char* Status::CopyState(const char* state)                          // 复
     return result;
 }
 
-Status::Status(Code code, const std::string& msg)          // 内部构造函数
+Status::Status(Code code, const std::string& msg)
 {
     assert(code != SUCCESS);
     const uint32_t len = msg.length();
     const uint32_t size = len;
-    char* result = new char[size + 6];   // 没有结束符? --- 由于保留了size字段，采用memcpy指定size操作，可以没有结束符
+    char* result = new char[size + 6];
     memcpy(result, &size, sizeof(size));
-    result[4] = static_cast<char>(code); // 第5个字节存放code
+    result[4] = static_cast<char>(code);
     //memcpy(result + 5, msg.data(), len1);
     memcpy(result + sizeof(size) + 1, msg.data(), len);
     state_ = result;
 }
 
-std::string Status::ToString() const                                // 返回状态字符串
+std::string Status::ToString() const
 {
     if (state_ == NULL)
     {
@@ -107,7 +105,7 @@ std::string Status::ToString() const                                // 返回状
         std::string result(type);
         uint32_t length;
         memcpy(&length, state_, sizeof(length));
-        result.append(state_ + 5, length);              // 状态字符串
+        result.append(state_ + 5, length);
         return result;
     }
 }

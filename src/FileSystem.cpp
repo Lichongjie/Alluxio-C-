@@ -3,12 +3,8 @@
 FileSystem::FileSystem()
 {
     JniHelper::start();
-
-    //FileSystem::filesystem = const_cast<jobject*> (filesystem);
     FileSystem::filesystem = JniHelper::callStaticObjectMethod("", "alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
     //ctor
-
-
 }
 void FileSystem::closeFileSystem()
 {
@@ -21,7 +17,7 @@ FileSystem::~FileSystem()
     FileSystem::closeFileSystem();
 }
 
-Status FileSystem::callJNIBydefaultOpt(const std::string& path, const std::string& methodName)
+Status FileSystem::callJNIBydefaultOption(const std::string& path, const std::string& methodName)
 {
     jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     JniHelper::callVoidMethod(FileSystem::filesystem, "alluxio/client/file/FileSystem",methodName, alluxiURI);
@@ -29,17 +25,19 @@ Status FileSystem::callJNIBydefaultOpt(const std::string& path, const std::strin
     return JniHelper::exceptionCheck();
 }
 
-Status FileSystem::callJNIBydefaultOpt(const std::string& src, const std::string& dst, const std::string& methodName)
+Status FileSystem::callJNIBydefaultOption(const std::string& src, const std::string& dst, const std::string& methodName)
 {
     jobject alluxiURISrc = JniHelper::createObjectMethod("alluxio/AlluxioURI", src);
     jobject alluxiURIDst =  JniHelper::createObjectMethod("alluxio/AlluxioURI", dst);
-    JniHelper::callVoidMethod( FileSystem::filesystem, "alluxio/client/file/FileSystem", methodName, alluxiURISrc, alluxiURIDst);
+    JniHelper::callVoidMethod(FileSystem::filesystem, "alluxio/client/file/FileSystem", methodName, alluxiURISrc, alluxiURIDst);
 
     JniHelper::getEnv()->DeleteLocalRef(alluxiURISrc);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURIDst);
 
     return JniHelper::exceptionCheck();
 }
+
+Status FileSystem::callJNIByOption(const std::string& path, const std::string& methodName, jobject& option);
 
 Status FileSystem::createDirectory(const std::string& path)
 {
@@ -55,8 +53,12 @@ Status FileSystem::createFile(const std::string& path,  FileOutStream** outStrea
     jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
     jobject fileOutStream = JniHelper::callObjectMethod(FileSystem::filesystem,  "alluxio/client/file/FileSystem","createFile","alluxio/client/file/FileOutStream", alluxiURI);
     JniHelper::getEnv()->DeleteLocalRef(alluxiURI);
-    *outStream = new FileOutStream(fileOutStream);
-    return JniHelper::exceptionCheck();
+    Status status = JniHelper::exceptionCheck();
+    if (status.ok())
+    {
+        *outStream = new FileOutStream(fileOutStream);
+    }
+    return status;
 }
 
 Status FileSystem::createFile(const std::string& path, const CreateFileOptions& options,  FileOutStream** outStream)

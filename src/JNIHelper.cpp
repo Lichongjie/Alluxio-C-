@@ -3,11 +3,7 @@
 #include <pthread.h>
 #include<iostream>
 
-//#include "base/ccUTF8.h"
-
 #define  LOG_TAG    "JniHelper"
-//#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
-//#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 static pthread_key_t g_key;
 jclass _getClassID(const char *className)
@@ -27,7 +23,6 @@ jclass _getClassID(const char *className)
 
     if (nullptr == _clazz)
     {
-        //  LOGE("Classloader failed to find class of %s", className);
         env->ExceptionClear();
     }
 
@@ -53,14 +48,12 @@ jobject JniHelper::_activity = nullptr;
 JavaVM* JniHelper::getJavaVM()
 {
     pthread_t thisthread = pthread_self();
-    //   LOGD("JniHelper::getJavaVM(), pthread_self() = %ld", thisthread);
     return _psJavaVM;
 }
 
 void JniHelper::setJavaVM(JavaVM *javaVM)
 {
     pthread_t thisthread = pthread_self();
-    //LOGD("JniHelper::setJavaVM(%p), pthread_self() = %ld", javaVM, thisthread);
     _psJavaVM = javaVM;
 
     pthread_key_create(&g_key, _detachCurrentThread);
@@ -69,27 +62,21 @@ void JniHelper::setJavaVM(JavaVM *javaVM)
 JNIEnv* JniHelper::cacheEnv(JavaVM* jvm)
 {
     JNIEnv* _env = nullptr;
-    // get jni environment
     jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_8);
 
     switch (ret)
     {
     case JNI_OK :
-        // success!
         pthread_setspecific(g_key, _env);
         return _env;
 
     case JNI_EDETACHED :
-        // Thread not attached
         if (jvm->AttachCurrentThread((void**)_env, nullptr) < 0)
         {
-            //     LOGE("Failed to get the environment using AttachCurrentThread()");
-
             return nullptr;
         }
         else
         {
-            // Success : Attached and obtained JNIEnv!
             pthread_setspecific(g_key, _env);
             return _env;
         }
@@ -98,7 +85,6 @@ JNIEnv* JniHelper::cacheEnv(JavaVM* jvm)
     // Cannot recover from this error
     //     LOGE("JNI interface version 1.4 not supported");
     default :
-        //  LOGE("Failed to get the environment using GetEnv()");
         return nullptr;
     }
 }
@@ -280,24 +266,17 @@ bool JniHelper::getMethodInfo(JniMethodInfo &methodinfo,
 
 jstring  JniHelper::string2jstring(JNIEnv* env,const char* pat)
 {
-    //定义java String类 strClass
     jclass strClass = (env)->FindClass("Ljava/lang/String;");
-    //获取String(byte[],String)的构造器,用于将本地byte[]数组转换为一个新String
     jmethodID ctorID = (env)->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
-    //建立byte数组
     jbyteArray bytes = (env)->NewByteArray(strlen(pat));
-    //将char* 转换为byte数组
     (env)->SetByteArrayRegion(bytes, 0, strlen(pat), (jbyte*)pat);
-    // 设置String, 保存语言类型,用于byte数组转换至String时的参数
     jstring encoding = (env)->NewStringUTF("GB2312");
-    //将byte数组转换为java String,并输出
     return (jstring)(env)->NewObject(strClass, ctorID, bytes, encoding);
 };
 
 std::string JniHelper:: jstring2string(jstring jstr)
 {
     JNIEnv *env = JniHelper::getEnv();
-
     char*   rtn   =   NULL;
     jclass   clsstring   =   env->FindClass("java/lang/String");
     jstring   strencode   =   env->NewStringUTF("GB2312");
@@ -349,9 +328,6 @@ void JniHelper::reportError(const std::string& className, const std::string& met
 {
     //    LOGE("Failed to find static java method. Class name: %s, method name: %s, signature: %s ",  className.c_str(), methodName.c_str(), signature.c_str());
 }
-
-
-
 
 
 //namespace cocos2d
