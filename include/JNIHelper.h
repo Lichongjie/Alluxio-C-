@@ -146,17 +146,6 @@ public:
         jobject res;
         JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
-
-        /*
-        if(default_signature.length() != 0 )
-        {
-            signature = default_signature;
-        }
-        else {
-            signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
-        }
-        */
-        cout<<signature<<endl;
         if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(), signature.c_str()))
         {
             LocalRefMapType localRefs;
@@ -172,8 +161,6 @@ public:
         add(res, returnClassName);
         return res;
     }
-
-
 
     template <typename... Ts>
     static jobject createObjectMethod(const std::string& className, Ts... xs)
@@ -197,8 +184,6 @@ public:
             return 0;
         }
         add(res,className );
-        //   mObjectToTypeNameMap.insert(std::make_pair(res, className));
-
         return res;
     }
 
@@ -399,7 +384,6 @@ public:
         jboolean error = env->ExceptionCheck();
         if(error)
         {
-            //异常处理
             //输出异常
             env->ExceptionDescribe();
             //清除异常
@@ -435,7 +419,6 @@ private:
             const char *className,
             const char *methodName,
             const char *paramCode);
-
 
     static JavaVM* _psJavaVM;
 
@@ -533,8 +516,6 @@ private:
         return getJNISignature(x) + getJNISignature(xs...);
     }
     static void reportError(const std::string& className, const std::string& methodName, const std::string& signature);
-
-
 
 };
 //NS_CC_END
