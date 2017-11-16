@@ -365,9 +365,7 @@ public:
         {
             return  Status::dataLoss(errorMsg);
         }
-
         return Status::OK();
-
     };
 
     static Status exceptionCheck()

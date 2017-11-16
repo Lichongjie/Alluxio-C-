@@ -40,7 +40,7 @@ int main(void)
 
    // cout<< "当前时间：" << fa_getSysTime() << endl;
  FileSystem* fileSystem = new  FileSystem();
- FileOutStream* out = new FileOutStream();
+ FileOutStream* out;
    //  gettimeofday( &start, NULL );
   //  printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
 //for(int i = 0 ;i <1000;i++) {

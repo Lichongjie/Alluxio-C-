@@ -46,9 +46,13 @@ public:
     ~FileSystem();
 private:
     jobject filesystem;
+    JniHelper::LocalRefMapType localRefs;
+
     jobject createAlluxioURI(const std::string& path);
     Status callJNIBydefaultOption(const std::string& path, const std::string& methodName);
     Status callJNIBydefaultOption(const std::string& src, const std::string&dst, const std::string& methodName);
+    Status callJNIByOption(const std::string& path, const std::string& methodName, jobject& option);
+    Status callJNIByOption(const std::string& src, const std::string&dst, const std::string& methodName, jobject& option);
 };
 }
 

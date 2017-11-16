@@ -2,10 +2,6 @@
 
 using namespace alluxio;
 
-FileOutStream::FileOutStream()
-{
-}
-
 FileOutStream::FileOutStream(jobject AlluxioOutStream)
 {
     FileOutStream::outStream = AlluxioOutStream;

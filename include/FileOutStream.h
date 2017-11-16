@@ -8,8 +8,6 @@ namespace alluxio
 class FileOutStream
 {
 public:
-    FileOutStream();
-    FileOutStream(jobject AlluxioOutStream);
     Status close();
     Status write(char b);
     Status write(const char* buf, size_t off, size_t len);
@@ -18,11 +16,11 @@ public:
     ~FileOutStream();
 
 protected:
+    FileOutStream(jobject AlluxioOutStream);
 
 private:
     jobject outStream;
     JniHelper::LocalRefMapType localRefs;
-
 };
 }
 
