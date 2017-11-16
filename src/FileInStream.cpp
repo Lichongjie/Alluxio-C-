@@ -15,7 +15,7 @@ FileInStream::FileInStream(jobject AlluxioInStream)
 FileInStream::~FileInStream()
 {
     JNIEnv *env = JniHelper::getEnv();
-    JniHelper::deleteLocalRefs(env, FileInStream::localRefs);
+    env->DeleteLocalRef(FileInStream::inStream);;
 }
 //TODO clear *b
 Status FileInStream::read(char* b)
@@ -33,9 +33,8 @@ Status FileInStream::read(const char* buf, size_t off, size_t len, size_t* resul
                                         &jbytearrays, (int)off, (int)len);
     //delete [] b;
     buf =  (char*)env-> GetByteArrayElements(jbytearrays, 0);
-    FileInStream::localRefs[env].push_back(jbytearrays);
-    Status stus =  JniHelper::exceptionCheck( );
-    return stus;
+    env->DeleteLocalRef(jbytearrays);
+    return JniHelper::exceptionCheck( );
 }
 
 Status FileInStream::seek(size_t pos) {

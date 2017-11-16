@@ -4,6 +4,7 @@
 #include<iostream>
 
 #define  LOG_TAG    "JniHelper"
+using namespace JNIHelper;
 
 static pthread_key_t g_key;
 jclass _getClassID(const char *className)

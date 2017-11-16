@@ -1,6 +1,8 @@
 #ifndef FILEOUTSTREAM_H
 #define FILEOUTSTREAM_H
 #include<JNIHelper.h>
+using namespace JNIHelper;
+
 
 namespace alluxio
 {
@@ -8,6 +10,7 @@ namespace alluxio
 class FileOutStream
 {
 public:
+    FileOutStream(jobject AlluxioOutStream);
     Status close();
     Status write(char b);
     Status write(const char* buf, size_t off, size_t len);
@@ -16,7 +19,6 @@ public:
     ~FileOutStream();
 
 protected:
-    FileOutStream(jobject AlluxioOutStream);
 
 private:
     jobject outStream;

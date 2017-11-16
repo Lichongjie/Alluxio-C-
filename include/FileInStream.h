@@ -1,6 +1,7 @@
 #ifndef FILEINSTREAM_H
 #define FILEINSTREAM_H
 #include "JNIHelper.h"
+using namespace JNIHelper;
 
 namespace alluxio
 {

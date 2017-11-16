@@ -27,7 +27,7 @@ Status FileOutStream::write(const char* buf, size_t off, size_t len)
     env->SetByteArrayRegion(jbytearrays, 0, byteLen, (jbyte*)buf);
     JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream",
                               "write", jbytearrays, (int)off, (int)len);
-    FileOutStream::localRefs[env].push_back(jbytearrays);
+    env->DeleteLocalRef(jbytearrays);
     return JniHelper::exceptionCheck();
 }
 
