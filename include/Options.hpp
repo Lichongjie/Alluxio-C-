@@ -13,7 +13,7 @@ public:
 
     };
      static CreateDirectoryOptions& defaults() {
-                                        createDirectoryOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/CreateDirectoryOptions", "defaults", "alluxio/client/file/options/CreateDirectoryOptions");
+                                        createDirectoryOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/CreateDirectoryOptions", "defaults", "alluxio/client/file/options/CreateDirectoryOptions");
                                         return *this;
                                     }
                                     jobject& getOptions() {
@@ -76,7 +76,7 @@ public:
     ~DeleteOptions() {
     }
    static DeleteOptions& defaults() {
-                                      deleteOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/DeleteOptions", "defaults", "alluxio/client/file/options/DeleteOptions");
+                                      deleteOpt = JniHelper::callStaticObjectMethod( "alluxio/client/file/options/DeleteOptions", "defaults", "alluxio/client/file/options/DeleteOptions");
                                       return *this;
                                   }
                                   jobject& getOptions() {
@@ -95,7 +95,7 @@ public :
 
     }
     static ExistsOptions& defaults() {
-                                    existsOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/ExistsOptions", "defaults", "alluxio/client/file/options/ExistsOptions");
+                                    existsOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/ExistsOptions", "defaults", "alluxio/client/file/options/ExistsOptions");
                                     return *this;
                                 }
                                 jobject& getOptions() {
@@ -114,7 +114,7 @@ public:
     ~FreeOptions() {
     }
     static FreeOptions& defaults() {
-                                freeOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/FreeOptions", "defaults", "alluxio/client/file/options/FreeOptions");
+                                freeOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/FreeOptions", "defaults", "alluxio/client/file/options/FreeOptions");
                                 return *this;
                             }
                             jobject& getOptions() {
@@ -134,7 +134,7 @@ public:
     }
 
     static ListStatusOptions& defaults() {
-                            listStatusOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/ListStatusOptions", "defaults", "alluxio/client/file/options/ListStatusOptions");
+                            listStatusOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/ListStatusOptions", "defaults", "alluxio/client/file/options/ListStatusOptions");
                             return *this;
                         }
                         jobject& getOptions() {
@@ -154,7 +154,7 @@ public:
 
     }
         static MountOptions& defaults() {
-                        mountOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/MountOptions", "defaults", "alluxio/client/file/options/MountOptions");
+                        mountOpt = JniHelper::callStaticObjectMethod( "alluxio/client/file/options/MountOptions", "defaults", "alluxio/client/file/options/MountOptions");
                         return *this;
                     }
                     jobject& getOptions() {
@@ -173,7 +173,7 @@ public:
     ~OpenFileOptions() {
     }
     static OpenFileOptions& defaults() {
-                    openFileOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/OpenFileOptions", "defaults", "alluxio/client/file/options/OpenFileOptions");
+                    openFileOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/OpenFileOptions", "defaults", "alluxio/client/file/options/OpenFileOptions");
                     return *this;
                 }
                 jobject& getOptions() {
@@ -192,7 +192,7 @@ public:
     ~RenameOptions() {
     }
     static RenameOptions& defaults() {
-                renameOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/RenameOptions", "defaults", "alluxio/client/file/options/RenameOptions");
+                renameOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/RenameOptions", "defaults", "alluxio/client/file/options/RenameOptions");
                 return *this;
             }
             jobject& getOptions() {
@@ -211,7 +211,7 @@ public:
 
     }
     static SetAttributeOptions& defaults() {
-            setAttributeOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/SetAttributeOptions", "defaults", "alluxio/client/file/options/SetAttributeOptions");
+            setAttributeOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/SetAttributeOptions", "defaults", "alluxio/client/file/options/SetAttributeOptions");
             return *this;
         }
         jobject& getOptions() {
@@ -230,7 +230,7 @@ public:
 
     }
     static UnmountOptions& defaults() {
-        ummountOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/UnmountOptions", "defaults", "alluxio/client/file/options/UnmountOptions");
+        ummountOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/UnmountOptions", "defaults", "alluxio/client/file/options/UnmountOptions");
         return *this;
     }
     jobject& getOptions() {
@@ -246,7 +246,7 @@ public:
     ~GetStatusOptions() {
     }
      static GetStatusOptions& defaults() {
-            getStatusOpt = JniHelper::callStaticObjectMethod("", "alluxio/client/file/options/GetStatusOptions", "defaults", "alluxio/client/file/options/GetStatusOptions");
+            getStatusOpt = JniHelper::callStaticObjectMethod("alluxio/client/file/options/GetStatusOptions", "defaults", "alluxio/client/file/options/GetStatusOptions");
             return *this;
         }
         jobject& getOptions() {

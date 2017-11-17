@@ -2,7 +2,7 @@
 
 FileSystem::FileSystem() {
     JniHelper::start();
-    FileSystem::filesystem = JniHelper::callStaticObjectMethod("", "alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
+    FileSystem::filesystem = JniHelper::callStaticObjectMethod("alluxio/client/file/FileSystem$Factory", "get", "alluxio/client/file/FileSystem");
     //ctor
 }
 void FileSystem::closeFileSystem() {

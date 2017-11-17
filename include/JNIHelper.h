@@ -188,19 +188,12 @@ public:
     }
 
     template <typename... Ts>
-    static jobject callStaticObjectMethod(const std::string& default_signature,
-                                          const std::string& className,
+    static jobject callStaticObjectMethod(const std::string& className,
                                           const std::string& methodName,
                                           const std::string& returnClassName, Ts... xs) {
         jobject ret;
         JniMethodInfo t;
-        std::string signature;
-        if(default_signature.length() != 0 ) {
-            signature = default_signature;
-        } else {
-            signature  = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
-        }
-
+        std::string signature  = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
         if (JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(),
                                            signature.c_str())) {
 
@@ -309,8 +302,8 @@ public:
             } else if(exceptionName.compare("alluxio/exception/UnavailableException") == 0) {
                 return Status::unavailable(errorMsg);
             }
-            jobject StatusException = JniHelper::callStaticObjectMethod("(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
-                                      , "alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/status/StatusException", (jobject)exc);
+            //"(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
+            jobject StatusException = JniHelper::callStaticObjectMethod("alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/status/StatusException", (jobject)exc);
             jobject statusInAlluxio = JniHelper::callObjectMethod((jobject& )exc,
                                       "alluxio/exception/status/StatusException", "getStatus",
                                       "alluxio/exception/status/Status");
