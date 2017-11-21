@@ -33,13 +33,10 @@ find_alluxio()
   base_dir=$ALLUXIO_HOME
 
   if [[ -z $base_dir ]]; then
-    base_dir=$HOME/pasa/tachyon # change if necessary
    #base_dir=$( cd "$( dirname "$0"/.. )" && pwd )
-
+	base_dir=/home/innkp/pasa/tachyon
   fi
   clientjarpath=$base_dir/assembly/client/target/alluxio-assembly-client-1.7.0-SNAPSHOT-jar-with-dependencies.jar
-  echo "heheeeeee"
-echo $clientjarpath
   if [ -f $clientjarpath ]; then
     echo "found alluxio client jar at $clientjarpath, add to CLASSPATH"
     export CLASSPATH=$CLASSPATH:$clientjarpath

@@ -1,412 +1,449 @@
-#ifndef   JNI_HELPER_H__
-#define  JNI_HELPER_H__
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License,
+ * version 2.0 (the "License"). You may not use this work except in compliance
+ * with the License, which is available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied, as more fully set forth
+ * in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding
+ * copyright ownership.
+ */
+
+#ifndef JNI_HELPER_H__
+#define JNI_HELPER_H__
 
 #include <jni.h>
-#include <string>
 #include <vector>
-#include <unordered_map>
 #include <functional>
-#include<cstdlib>
+#include <cstdlib>
 #include <stdio.h>
 #include <string.h>
-#include<iostream>
-#include<Status.h>
-#include<map>
-#include<Wire.h>
+#include <map>
+#include <pthread.h>
+#include <memory>
+#include <iostream>
 
+#include "Status.h"
 
-namespace JNIHelper {
-static std::map<jobject, const std::string>  mObjectToTypeNameMap;
+namespace jnihelper {
+
+// Caches the jclass object and Class name for further JNI calling
+class ClassCache {
+
+ public:
+  ~ClassCache();
+  // Gets the static ClassCache Instance
+  ClassCache(JNIEnv* jniEnv) : env(jniEnv) {};
+  static ClassCache* instance(JNIEnv* env);
+  // Gets jclass object by class name
+  jclass getJclass(const char* className);
+  // Stores the map from object to its class name
+  void CacheClassName(jobject obj, const std::string& classname);
+  // Deletes item in objectToTypeNameMap
+  void deleteClassName(jobject obj);
+  // Gets class name of object
+  std::string getClassName(jobject obj);
+ private:
+   std::map<const char*, jclass>  classNameToJclassMap;
+   std::map<jobject, const std::string> objectToTypeNameMap;
+   JNIEnv* env;
+};
+
+// Caches the map from JNIEnv* to ClassCache instance
+class ClassCaches {
+ public:
+  static ClassCaches& getInstance() {
+    static ClassCaches instance;
+    return instance;
+  }
+  ClassCache* getCache(JNIEnv *env);
+
+ private:
+  std::map<JNIEnv *, std::shared_ptr<ClassCache> > m_caches;
+};
 
 typedef struct JniMethodInfo_ {
-    JNIEnv *    env;
-    jclass      classID;
-    jmethodID   methodID;
+  JNIEnv* env;
+  jclass classID;
+  jmethodID methodID;
 } JniMethodInfo;
 
-class  JniHelper {
-public:
-    typedef std::unordered_map<JNIEnv*, std::vector<jobject>> LocalRefMapType;
+// The JNI function tools. The public static function can be called when calling
+// JNI function.
+class JniHelper {
 
-    static void setJavaVM(JavaVM *javaVM);
-    static JavaVM* getJavaVM();
-    static JNIEnv* getEnv();
-    static jobject getActivity();
+ public:
+  typedef std::map<JNIEnv*, std::vector<jobject>> LocalRefMapType;
+  // Sets java vm information for JNI calling
+  static void SetJavaVM(JavaVM *javaVM);
+  // Gets the object of JavaVM
+  static JavaVM* GetJavaVM();
+  // Gets JNIEnv object of current thread, created if not setted
+  static JNIEnv* GetEnv();
+  // Sets JNI environment. Must be called once before  JNI operations. The
+  // CLASSPATH environment must has the alluxio client jar file path. Can be
+  // setted by run alluxio-client-env.sh
+  static void Start() {
+    JNIEnv *env;
+    JavaVM *jvm;
+    JavaVMOption options[1];
+    JavaVMInitArgs vm_args;
 
-    static void start() {
-        JNIEnv *env;
-        JavaVM *jvm;
-        JavaVMOption options[1];
-        JavaVMInitArgs vm_args;
-
-        char *classpath = getenv("CLASSPATH");
-        if (classpath == NULL) {
-            throw std::runtime_error("CLASSPATH env variable is not set");
-        }
-        const char *classpath_opt = "-Djava.class.path=";
-        size_t cp_len = strlen(classpath) + strlen(classpath_opt) + 1;
-
-        std::string classpathString(classpath_opt);
-        classpathString.append(classpath);
-
-        // For base alluxio support
-        //  classpathString.append(":");
-        // classpathString.append(CLASSPATH_ALLUXIO_JAR);
-
-        options[0].optionString = const_cast<char *>(classpathString.c_str());
-        memset(&vm_args, 0, sizeof(vm_args));
-        vm_args.version = JNI_VERSION_1_8;
-        vm_args.nOptions = 1;
-        vm_args.options = options;
-
-        JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
-        JniHelper::setJavaVM(jvm);
-        JniHelper::cacheEnv(jvm);
+    char *classpath = getenv("CLASSPATH");
+    if (classpath == NULL) {
+      throw std::runtime_error("CLASSPATH env variable is not set");
     }
 
-    static void finish() {
-        getJavaVM()->DestroyJavaVM();
-        mObjectToTypeNameMap.clear();
-    }
+    const char *classpath_opt = "-Djava.class.path=";
+    std::string classpathString(classpath_opt);
+    classpathString.append(classpath);
 
-    static bool setClassLoaderFrom(jobject activityInstance);
-    static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
-                                    const char *className,
-                                    const char *methodName,
-                                    const char *paramCode);
+    options[0].optionString = const_cast<char *>(classpathString.c_str());
+    memset(&vm_args, 0, sizeof(vm_args));
+    vm_args.version = JNI_VERSION_1_8;
+    vm_args.nOptions = 1;
+    vm_args.options = options;
 
-    static bool getMethodInfo(JniMethodInfo &methodinfo,
-                              const char *className,
-                              const char *methodName,
-                              const char *paramCode);
+    JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
+    JniHelper::SetJavaVM(jvm);
+    JniHelper::CacheEnv(jvm);
+  }
 
-    static std::string jstring2string(jstring str);
-
-    static jmethodID loadclassMethod_methodID;
-    static jobject classloader;
-    static std::function<void()> classloaderCallback;
-
-    template <typename... Ts>
-    static void callVoidMethod( jobject& obj, const std::string& className,
-                                const std::string& methodName,
-                                Ts... xs) {
-        JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-            LocalRefMapType localRefs;
-            t.env->CallVoidMethod(obj, t.methodID, convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-        }
-    }
-
-
-
-    template <typename... Ts>
-    static jobject callObjectMethod( jobject& obj, const std::string& className,
-                                     const std::string& methodName,
-                                     const std::string& returnClassName, Ts... xs) {
-        jobject res;
-        JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName + ";";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-            LocalRefMapType localRefs;
-            res =  t.env->CallObjectMethod(obj,  t.methodID,  convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-            return NULL;
-        }
-        add(res, returnClassName);
-        return res;
-    }
-
-    template <typename... Ts>
-    static jobject createObjectMethod(const std::string& className, Ts... xs) {
-        jobject res;
-        JniMethodInfo t;
-        std::string methodName = "<init>";
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-
-            LocalRefMapType localRefs;
-            res = t.env->NewObject(t.classID, t.methodID,convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-            return 0;
-        }
-        add(res,className );
-        return res;
-    }
-
-    template <typename... Ts>
-    static bool callBooleanMethod(jobject& obj, const std::string& className,
-                                  const std::string& methodName,
-                                  Ts... xs) {
-        jboolean jret = JNI_FALSE;
-        JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-            LocalRefMapType localRefs;
-            jret = t.env->CallBooleanMethod(obj, t.methodID, convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-        }
-        return (jret == JNI_TRUE);
-    }
-
-    template <typename... Ts>
-    static int callIntMethod(jobject obj, const std::string& className,
+  template <typename... Ts>
+  static void CallVoidMethod(jobject& obj, const std::string& className,
                              const std::string& methodName, Ts... xs) {
-
-        jint jret;
-        JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-            LocalRefMapType localRefs;
-            jret = t.env->CallIntMethod(obj, t.methodID, convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-        }
-        return (int)jret;
-
+    JniMethodInfo t;
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) + ")V";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      t.env->CallVoidMethod(obj, t.methodID, Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
     }
+  }
 
-    template <typename... Ts>
-    static jobject callStaticObjectMethod(const std::string& className,
-                                          const std::string& methodName,
-                                          const std::string& returnClassName, Ts... xs) {
-        jobject ret;
-        JniMethodInfo t;
-        std::string signature  = "(" + std::string(getJNISignature(xs...)) + ")L" + returnClassName +";";
-        if (JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(),
-                                           signature.c_str())) {
-
-            LocalRefMapType localRefs;
-            ret = t.env->CallStaticObjectMethod(t.classID, t.methodID,
-                                                convert(localRefs, t, xs)...);
-            t.env->DeleteLocalRef(t.classID);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-        }
-        add(ret, returnClassName) ;
-        return ret;
+  template <typename... Ts>
+  static jobject CallObjectMethod(jobject& obj, const std::string& className,
+                                  const std::string& methodName,
+                                  const std::string& returnClassName,
+                                  Ts... xs) {
+    jobject res;
+    JniMethodInfo t;
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) +
+        ")L" + returnClassName + ";";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      res = t.env->CallObjectMethod(obj, t.methodID,
+                                    Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
+      return NULL;
     }
+    ClassCache::instance(t.env)->CacheClassName(res, returnClassName);
+    return res;
+  }
 
-    template <typename... Ts>
-    static std::string callStringMethod(jobject obj, const std::string& className,
+  template <typename... Ts>
+  static jobject CreateObjectMethod(const std::string& className, Ts... xs) {
+    jobject res;
+    JniMethodInfo t;
+    std::string methodName = "<init>";
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) + ")V";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      res = t.env->NewObject(t.classID, t.methodID,
+                             Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
+      return 0;
+    }
+    ClassCache::instance(t.env)->CacheClassName(res, className);
+    return res;
+  }
+
+  template <typename... Ts>
+  static bool CallBooleanMethod(jobject& obj, const std::string& className,
+                                const std::string& methodName, Ts... xs) {
+    jboolean jret = JNI_FALSE;
+    JniMethodInfo t;
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) + ")Z";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      jret = t.env->CallBooleanMethod(obj, t.methodID,
+                                      Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
+    }
+    return (jret == JNI_TRUE);
+  }
+
+  template <typename... Ts>
+  static int CallIntMethod(jobject obj, const std::string& className,
+                           const std::string& methodName, Ts... xs) {
+    jint res;
+    JniMethodInfo t;
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) + ")I";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      res = t.env->CallIntMethod(obj, t.methodID,
+                                  Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
+    }
+    return (int)res;
+  }
+
+  template <typename... Ts>
+  static std::string CallStringMethod(jobject obj, const std::string& className,
+                                      const std::string& methodName, Ts... xs) {
+    std::string res;
+    JniMethodInfo t;
+    std::string signature =
+        "(" + std::string(GetJniSignature(xs...)) + ")Ljava/lang/String;";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), false)) {
+      LocalRefMapType localRefs;
+      jstring jret = (jstring)t.env->CallObjectMethod(obj, t.methodID,
+                                         Convert(localRefs, t, xs)...);
+      res =JniHelper::JstringToString(jret);
+      DeleteObjectRef(jret);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
+    }
+    return res;
+  }
+
+  template <typename... Ts>
+  static jobject CallStaticObjectMethod(const std::string& className,
                                         const std::string& methodName,
+                                        const std::string& returnClassName,
                                         Ts... xs) {
-        std::string ret;
-        JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Ljava/lang/String;";
-        if (JniHelper::getMethodInfo_DefaultClassLoader(t, className.c_str(), methodName.c_str(),
-                signature.c_str())) {
-            LocalRefMapType localRefs;
-            jstring jret = (jstring)t.env->CallObjectMethod(obj, t.methodID,
-                           convert(localRefs, t, xs)...);
-            ret =JniHelper::jstring2string(jret);
-            t.env->DeleteLocalRef(t.classID);
-            t.env->DeleteLocalRef(jret);
-            deleteLocalRefs(t.env, localRefs);
-        } else {
-            reportError(className, methodName, signature);
-        }
-        return ret;
+    jobject res;
+    JniMethodInfo t;
+    std::string signature = "(" + std::string(GetJniSignature(xs...)) +
+        ")L" + returnClassName +";";
+    if (JniHelper::GetMethodInfo(t, className.c_str(), methodName.c_str(),
+                                 signature.c_str(), true)) {
+      LocalRefMapType localRefs;
+      res = t.env->CallStaticObjectMethod(t.classID, t.methodID,
+                                          Convert(localRefs, t, xs)...);
+      DeleteLocalRefs(t.env, localRefs);
+    } else {
+      ReportError(className, methodName, signature);
     }
+    ClassCache::instance(t.env)->CacheClassName(res, returnClassName) ;
+    return res;
+  }
 
-    static jboolean ToJBool(bool value) {
-        return value ? JNI_TRUE : JNI_FALSE;
+  // Gets class name by jobject instance
+  static std::string GetObjectClassName(jobject obj) {
+    jobject classObj = JniHelper::CallObjectMethod(obj, "java/lang/Object",
+                                                   "getClass",
+                                                   "java/lang/Class");
+    std::string className = JniHelper::CallStringMethod(classObj,
+                                                        "java/lang/Class",
+                                                        "getName");
+    DeleteObjectRef(classObj);
+    for (int i = 0; i < className.length(); i ++) {
+      if (className[i] == '.' ) {
+        className[i] = '/';
+      }
     }
+    return className;
+  }
 
-    static std::string getObjectClassName(jobject obj) {
-        jobject classObj = JniHelper::callObjectMethod(obj, "java/lang/Object", "getClass",
-                           "java/lang/Class");
-        std::string  className = JniHelper::callStringMethod(classObj, "java/lang/Class",
-                                 "getName");
-        JniHelper::getEnv()->DeleteLocalRef(classObj);
-        return className;
+  static void DeleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs);
+  static void DeleteObjectRef(jobject obj) {
+    JNIEnv* env = GetEnv();
+    ClassCache::instance(env)->deleteClassName(obj);
+    env->DeleteLocalRef(obj);
+   }
+
+  // Get Status instance by status name
+  static Status GetStatusFromAlluxioException(const std::string& statusName,
+      const std::string& errorMsg) {
+    if (statusName.compare("CANCELED") == 0) {
+      return Status::canceled(errorMsg);
+    } else if (statusName.compare("UNKNOWN") == 0) {
+      return Status::unknown(errorMsg);
+    } else if (statusName.compare("INVALID_ARGUMENT") == 0) {
+      return Status::invalidArgument(errorMsg);
+    } else if (statusName.compare("DEADLINE_EXCEEDED") == 0) {
+      return Status::deadlineExceeded(errorMsg);
+    } else if (statusName.compare("NOT_FOUND") == 0) {
+      return Status::notFound(errorMsg);
+    } else if (statusName.compare("ALREADY_EXISTS") == 0) {
+      return Status::alreadyExist(errorMsg);
+    } else if (statusName.compare("PERMISSION_DENIED") == 0) {
+      return Status::permissionDenied(errorMsg);
+    } else if (statusName.compare("UNAUTHENTICATED") == 0) {
+      return Status::unAuthenticated(errorMsg);
+    } else if (statusName.compare("RESOURCE_EXHAUSTED") == 0) {
+      return Status::resourceExhausted(errorMsg);
+    } else if (statusName.compare("FAILED_PRECONDITION") == 0) {
+      return Status::failedPrecondition(errorMsg);
+    } else if (statusName.compare("ABORTED") == 0) {
+      return Status::aborted(errorMsg);
+    } else if (statusName.compare("OUT_OF_RANGE") == 0) {
+      return Status::outOfRange(errorMsg);
+    } else if (statusName.compare("UNIMPLEMENTED") == 0) {
+      return Status::unImplemented(errorMsg);
+    } else if (statusName.compare("INTERNAL") == 0) {
+      return Status::internal(errorMsg);
+    } else if (statusName.compare("UNAVAILABLE") == 0) {
+      return Status::unavailable(errorMsg);
+    } else if (statusName.compare("DATA_LOSS") == 0) {
+      return Status::dataLoss(errorMsg);
     }
+    return Status::OK();
+  };
 
-    static void deleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs);
+  // Checks if there are some AlluxioExceptions happened during JNI calling.
+  // Returns Status object depending on the AlluxioException status
+  static Status AlluxioExceptionCheck() {
+    JNIEnv *env = GetEnv();
+    jthrowable javaException;
+    javaException = env->ExceptionOccurred();
+    jboolean error = env->ExceptionCheck();
 
-    static Status getStatusFromJavaException(const std::string& statusName,
-            const std::string& errorMsg) {
-        using namespace std;
-        if(statusName.compare("CANCELED") == 0) {
-            return  Status::canceled(errorMsg);
+    if (error) {
+      env->ExceptionDescribe();
+      env->ExceptionClear();
+      std::string exceptionName = JniHelper::GetObjectClassName((jobject)javaException);
+      std::string errorMsg = JniHelper::CallStringMethod((jobject)javaException,
+                                                         "java/lang/Throwable",
+                                                         "getMessage");
+      char* exceptionSplit = strtok((char*)exceptionName.c_str(), "/");
+      if (strcmp(exceptionSplit, "java") == 0) {
+        // these exceptions are thrown by FileInStream and FileOutStream, are
+        // not the subClass of alluxio.exception.AlluxioException
+        return Status::internal(errorMsg);
+      }
+      for (int i = 2; i > 0; i --) {
+        exceptionSplit = strtok(NULL, "/");
+      }
 
-        } else if(statusName.compare("UNKNOWN") == 0) {
-            return  Status::unknown(errorMsg);
-        } else if(statusName.compare("INVALID_ARGUMENT") == 0) {
-            return  Status::invalidArgument(errorMsg);
-        } else if(statusName.compare("DEADLINE_EXCEEDED") == 0) {
-            return  Status::deadlineExceeded(errorMsg);
-        } else if(statusName.compare("NOT_FOUND") == 0) {
-            return  Status::notFound(errorMsg);
-        } else if(statusName.compare("ALREADY_EXISTS") == 0) {
-            return  Status::alreadyExist(errorMsg);
-        } else if(statusName.compare("PERMISSION_DENIED") == 0) {
-            return  Status::permissionDenied(errorMsg);
-        } else if(statusName.compare("UNAUTHENTICATED") == 0) {
-            return  Status::unAuthenticated(errorMsg);
-        } else if(statusName.compare("RESOURCE_EXHAUSTED") == 0) {
-            return Status::resourceExhausted(errorMsg);
-        } else if(statusName.compare("FAILED_PRECONDITION") == 0) {
-            return  Status::failedPrecondition(errorMsg);
-        } else if(statusName.compare("ABORTED") == 0) {
-            return  Status::aborted(errorMsg);
-        } else if(statusName.compare("OUT_OF_RANGE") == 0) {
-            return Status::outOfRange(errorMsg);
-        } else if(statusName.compare("UNIMPLEMENTED") == 0) {
-            return  Status::unImplemented(errorMsg);
-        } else if(statusName.compare("INTERNAL") == 0) {
-            return  Status::internal(errorMsg);
-        } else if(statusName.compare("UNAVAILABLE") == 0) {
-            return  Status::unavailable(errorMsg);
-        } else if(statusName.compare("DATA_LOSS") == 0) {
-            return  Status::dataLoss(errorMsg);
-        }
-        return Status::OK();
-    };
+      jobject statusInAlluxio;
+      // handles the AlluxioStatusException directly
+      if (strcmp(exceptionSplit, "Status") == 0) {
+        statusInAlluxio = (jobject)javaException;
+      } else {  // Converts the AlluxioException to AlluxioStatusException
+        ClassCache::instance(env)->CacheClassName((jobject)javaException,
+            "alluxio/exception/AlluxioException") ;
+        jobject statusException = JniHelper::CallStaticObjectMethod(
+            "alluxio/exception/status/AlluxioStatusException",
+            "fromAlluxioException",
+            "alluxio/exception/status/AlluxioStatusException",
+            (jobject)javaException);
+        statusInAlluxio = JniHelper::CallObjectMethod(statusException,
+            "alluxio/exception/status/AlluxioStatusException", "getStatus",
+             "alluxio/exception/status/Status");
+        DeleteObjectRef(statusException);
+      }
+      std::string statusName = JniHelper::CallStringMethod(
+          (jobject)statusInAlluxio, "java/lang/Enum", "name");
 
-    static Status exceptionCheck() {
-        JNIEnv *env = getEnv();
-        jthrowable exc;
-        exc = env->ExceptionOccurred();
-        jboolean error = env->ExceptionCheck();
-        if(error) {
-            env->ExceptionDescribe();
-            env->ExceptionClear();
-            std::string exceptionName =  JniHelper::getObjectClassName((jobject)exc);
-            std::string errorMsg = JniHelper::callStringMethod((jobject)exc, "java/lang/Throwable",
-                                   "getMessage");
-            if(exceptionName.compare("alluxio/exception/FileDoesNotExistException") == 0 ) {
-                return Status::notFound(errorMsg);
-            } else if(exceptionName.compare("alluxio/exception/UnavailableException") == 0) {
-                return Status::unavailable(errorMsg);
-            }
-            //"(Lalluxio/exception/AlluxioException;)Lalluxio/exception/status/StatusException;"
-            jobject StatusException = JniHelper::callStaticObjectMethod("alluxio/exception/status/StatusException", "fromAlluxioException", "alluxio/exception/status/StatusException", (jobject)exc);
-            jobject statusInAlluxio = JniHelper::callObjectMethod((jobject& )exc,
-                                      "alluxio/exception/status/StatusException", "getStatus",
-                                      "alluxio/exception/status/Status");
-            std::string statusName = JniHelper::callStringMethod((jobject)exc, "java/lang/enum",
-                                     "name");
-            return getStatusFromJavaException(statusName, errorMsg);
-            // env->ThrowNew(newExcCls, "thrown from C code");
-        } else {
-            return Status();
-        }
+      DeleteObjectRef(statusInAlluxio);
+      return GetStatusFromAlluxioException(statusName, errorMsg);
+    } else {
+      return Status::OK();
     }
+  }
 
-private:
-    static jstring  string2jstring(JNIEnv* env,const char* pat);
-    static JNIEnv* cacheEnv(JavaVM* jvm);
-    static bool getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
-            const char *className,
-            const char *methodName,
-            const char *paramCode);
+ private:
+  static jstring SringToJstring(JNIEnv* env,const char* pat);
+  static std::string JstringToString(jstring str);
+  static JNIEnv* CacheEnv(JavaVM* jvm);
+  static bool GetMethodInfo(JniMethodInfo& methodinfo, const char* className,
+                            const char *methodName, const char* paramCode,
+                            bool isStatic);
+  static JavaVM* _psJavaVM;
+  static jstring Convert(LocalRefMapType& localRefs, JniMethodInfo& t,
+                         const char* x);
+  static jstring Convert(LocalRefMapType& localRefs, JniMethodInfo& t,
+                         const std::string& x);
 
-    static JavaVM* _psJavaVM;
+  template <typename T>
+  static T Convert(LocalRefMapType& localRefs, JniMethodInfo&, T x) {
+    return x;
+  }
 
-    static jobject _activity;
+  static std::string GetJniSignature() {
+    return "";
+  }
 
-    static void add(jobject obj, const std::string& classname) {
-        mObjectToTypeNameMap.insert(std::make_pair(obj, classname));
-    }
+  static std::string GetJniSignature(int) {
+    return "I";
+  }
 
-    static jstring convert(LocalRefMapType& localRefs, JniMethodInfo& t, const char* x);
+  static std::string GetJniSignature(bool) {
+    return "Z";
+  }
 
-    static jstring convert(LocalRefMapType& localRefs, JniMethodInfo& t, const std::string& x);
+  static std::string GetJniSignature(char) {
+    return "C";
+  }
 
-    template <typename T>
-    static T convert(LocalRefMapType& localRefs, JniMethodInfo&, T x) {
-        return x;
-    }
+  static std::string GetJniSignature(short) {
+    return "S";
+  }
 
+  static std::string GetJniSignature(long) {
+    return "J";
+  }
 
-    static std::string getJNISignature() {
-        return "";
-    }
+  static std::string GetJniSignature(float) {
+    return "F";
+  }
 
-    static std::string getJNISignature(bool) {
-        return "Z";
-    }
+  static std::string GetJniSignature(double) {
+    return "D";
+  }
 
-    static std::string getJNISignature(char) {
-        return "C";
-    }
+  static std::string GetJniSignature(const char*) {
+    return "[B";
+  }
 
-    static std::string getJNISignature(short) {
-        return "S";
-    }
+  static std::string GetJniSignature(jbyteArray) {
+    return "[B";
+  }
 
-    static std::string getJNISignature(int) {
-        return "I";
-    }
+  static std::string GetJniSignature(const std::string&) {
+    return "Ljava/lang/String;";
+  }
 
-    static std::string getJNISignature(long) {
-        return "J";
-    }
+  static std::string GetJniSignature(jobject obj) {
+    return ClassCache::instance(JniHelper::GetEnv())->getClassName(obj);
+  }
 
-    static std::string getJNISignature(float) {
-        return "F";
-    }
+  template <typename T>
+  static std::string GetJniSignature(T x) {
+    // This template should never be instantiated
+    return "";
+  }
 
-    static  std::string getJNISignature(double) {
-        return "D";
-    }
+  template <typename T, typename... Ts>
+  static std::string GetJniSignature(T x, Ts... xs) {
+    return GetJniSignature(x) + GetJniSignature(xs...);
+  }
 
-    static std::string getJNISignature(const char*) {
-        // return "Ljava/lang/String;";
-        return "[B";
-    }
-
-    static std::string getJNISignature(const std::string&) {
-        return "Ljava/lang/String;";
-    }
-
-    static std::string getJNISignature(jobject& obj) {
-        std::map<jobject, const std::string>::iterator itr = mObjectToTypeNameMap.find(obj);
-        if( itr != mObjectToTypeNameMap.end() ) {
-            return "L" + (std::string) itr->second + ";";
-        }
-        return getObjectClassName(obj);
-    }
-
-
-    template <typename T>
-    static std::string getJNISignature(T x) {
-        // This template should never be instantiated
-        // static_assert(sizeof(x) == 0, "Unsupported argument type");
-        return "";
-    }
-    template <typename T, typename... Ts>
-    static std::string getJNISignature(T x, Ts... xs) {
-
-        return getJNISignature(x) + getJNISignature(xs...);
-    }
-    static void reportError(const std::string& className, const std::string& methodName,
-                            const std::string& signature);
-
+  static void ReportError(const std::string& className,
+                          const std::string& methodName,
+                          const std::string& signature);
 };
+
 }
 #endif //JNI_HELPER_H__
-

@@ -1,49 +1,8 @@
-#ifndef COMMON_H
-#define COMMON_H
-
-class FileInfo {
-
-public:
-    FileInfo() {
-
-    };
-    ~FileInfo() {
-
-    };
-};
-
-class FileBlockInfo {
-public:
-    FileBlockInfo() {
-
-    };
-    ~FileBlockInfo() {
-
-    };
-};
-
-class BlockInfo {
-public:
-    BlockInfo() {
-
-    };
-    ~BlockInfo() {
-
-    };
-};
-
-class WorkerNetAddress {
-public:
-    WorkerNetAddress() {
-
-    };
-    ~WorkerNetAddress() {
-    };
-
-};
+#ifndef WIRE_H
+#define WIRE_H
 
 class MountPointInfo {
-public:
+  public:
     MountPointInfo() {
     }
     ~MountPointInfo() {
@@ -51,20 +10,13 @@ public:
 };
 
 class URIStatus {
-public:
+  public:
     URIStatus(jobject URIStatus) {
         jURIStatus = URIStatus;
     }
 
-private:
+  private:
     jobject jURIStatus;
-
-
 };
 
-
-
-
-
-
-#endif // COMMON_H
+#endif // WIRE_H

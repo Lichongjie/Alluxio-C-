@@ -2,45 +2,65 @@
 
 using namespace alluxio;
 
-FileOutStream::FileOutStream(jobject AlluxioOutStream) {
-    FileOutStream::outStream = AlluxioOutStream;
-
+FileOutStream::FileOutStream(jobject alluxioOutStream) {
+  FileOutStream::outStream = alluxioOutStream;
 }
 
 FileOutStream::~FileOutStream() {
-
 }
 
-Status FileOutStream::write(char b) {
-    return FileOutStream::write(&b, 0, 1);
-
+Status FileOutStream::Write(char b) {
+  return FileOutStream::Write(&b, 0, 1);
 }
 
-Status FileOutStream::write(const char* buf, size_t off, size_t len) {
+Status FileOutStream::Write(const char* buf, size_t off, size_t len) {
+  try {
     int byteLen = strlen(buf);
-    JNIEnv *env = JniHelper::getEnv();
-    jbyteArray jbytearrays = env->NewByteArray(byteLen);
-    env->SetByteArrayRegion(jbytearrays, 0, byteLen, (jbyte*)buf);
-    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream",
-                              "write", jbytearrays, (int)off, (int)len);
-    env->DeleteLocalRef(jbytearrays);
-    return JniHelper::exceptionCheck();
+    JNIEnv* env = JniHelper::GetEnv();
+    jbyteArray jByteArrays = env->NewByteArray(byteLen);
+    env->SetByteArrayRegion(jByteArrays, 0, byteLen, (jbyte*)buf);
+    JniHelper::CallVoidMethod(FileOutStream::outStream,
+                              "alluxio/client/file/FileOutStream", "write",
+                              jByteArrays, (int)off, (int)len);
+    env->DeleteLocalRef(jByteArrays);
+  } catch (std::string e) {
+    return Status::jniError(e);
+  }
+
+  return JniHelper::AlluxioExceptionCheck();
 }
 
-Status FileOutStream::flush() {
-    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream",
-                              "flush");
-    return JniHelper::exceptionCheck();
+Status FileOutStream::Flush() {
+  try {
+		JniHelper::CallVoidMethod(FileOutStream::outStream,
+        "alluxio/client/file/FileOutStream", "flush");
+  } catch (std::string e) {
+    return Status::jniError(e);
+  }
+
+  return JniHelper::AlluxioExceptionCheck();
 }
 
-Status FileOutStream::cancel() {
-    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream",
-                              "cancel");
-    return JniHelper::exceptionCheck();
+Status FileOutStream::Cancel() {
+  try {
+  	JniHelper::CallVoidMethod(FileOutStream::outStream,
+                            	"alluxio/client/file/FileOutStream", "cancel");
+  	JniHelper::DeleteObjectRef(FileOutStream::outStream);
+  } catch (std::string e) {
+    return Status::jniError(e);
+  }
+
+  return JniHelper::AlluxioExceptionCheck();
 }
 
-Status FileOutStream::close() {
-    JniHelper::callVoidMethod(FileOutStream::outStream, "alluxio/FileSystem/file/FileOutStream",
-                              "close");
-    return JniHelper::exceptionCheck();
+Status FileOutStream::Close() {
+  try {
+  	JniHelper::CallVoidMethod(FileOutStream::outStream,
+     	                       "alluxio/client/file/FileOutStream", "close");
+  	JniHelper::DeleteObjectRef(FileOutStream::outStream);
+  } catch (std::string e) {
+    return Status::jniError(e);
+  }
+
+  return JniHelper::AlluxioExceptionCheck();
 }

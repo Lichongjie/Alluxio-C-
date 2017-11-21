@@ -6,7 +6,6 @@ liballuxio_la_LIBADD = $(JNI_LDFLAGS)
 INCLUDES = -I/home/innkp/Alluxio-Cpp/include/
 
 include_liballuxiodir = $(includedir)
-#include_alluxiocppdir = "/home/innkp/Alluxio-Cpp/include"
 #include_liballuxio_HEADERS = FileSystem.h FileInStream.h FileOutStream.h
 
 bin_PROGRAMS = alluxiotest

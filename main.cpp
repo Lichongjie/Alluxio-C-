@@ -44,9 +44,9 @@ int main(void)
    //  gettimeofday( &start, NULL );
   //  printf("start : %d.%d\n", start.tv_sec, start.tv_usec);
 //for(int i = 0 ;i <1000;i++) {
-// FileSystem->deletePath("/hehehe");
+// FileSystem->DeletePath("/hehehe");
 cout<<"adad"<<endl;
- fileSystem->createFile("/hehe",  &out);
+ fileSystem->CreateFile("/hehe",  &out);
 //}
 //    gettimeofday( &endd, NULL );
    // printf("endd : %d.%d\n", endd.tv_sec, endd.tv_usec);
@@ -59,11 +59,11 @@ cout<<"adad"<<endl;
 
 
     /*
-        jobject filesystem = JniHelper::callStaticObjectMethod("alluxio/FileSystem/file/FileSystem$Factory", "get", "alluxio/FileSystem/file/FileSystem");
+        jobject filesystem = JniHelper::CallStaticObjectMethod("alluxio/FileSystem/file/FileSystem$Factory", "get", "alluxio/FileSystem/file/FileSystem");
         std::string path = "/hehehe";
-        jobject alluxiURI = JniHelper::createObjectMethod("alluxio/AlluxioURI", path);
-    //jobject obj2 = JniHelper::callObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
-        JniHelper::callVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/FileSystem/file/FileSystem","createDirectory", alluxiURI);
+        jobject alluxiURI = JniHelper::CreateObjectMethod("alluxio/AlluxioURI", path);
+    //jobject obj2 = JniHelper::CallObjectMethod(obj, "r/Sample2", "sayHello", "r/testObj", ss);
+        JniHelper::CallVoidMethod( "(Lalluxio/AlluxioURI;)V", filesystem, "alluxio/FileSystem/file/FileSystem","createDirectory", alluxiURI);
         jvm->DestroyJavaVM();
         return 0;
         */
