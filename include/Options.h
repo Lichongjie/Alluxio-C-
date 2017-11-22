@@ -104,15 +104,15 @@ class ListStatusOptions : public JniObjectBase {
 
  public:
   static ListStatusOptions* getDefaultOptions() {
-    jobject listStatusOpt = JniHelper::CallStaticObjectMethod(
+    jobject ListStatusOpt = JniHelper::CallStaticObjectMethod(
         "alluxio/client/file/options/ListStatusOptions", "defaults",
         "alluxio/client/file/options/ListStatusOptions");
-    return new ListStatusOptions(listStatusOpt);
+    return new ListStatusOptions(ListStatusOpt);
   }
 
  private:
-  ListStatusOptions(jobject listStatusOptions) :
-    JniObjectBase(listStatusOptions) {}
+  ListStatusOptions(jobject ListStatusOptions) :
+    JniObjectBase(ListStatusOptions) {}
 };
 
 class MountOptions : public JniObjectBase {

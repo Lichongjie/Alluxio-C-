@@ -62,13 +62,13 @@ class FileSystem {
   // Gets the URIStatus object that represents the metadata of an Alluxio path
   Status GetStatus(const std::string& path, const GetStatusOptions& options,
                    URIStatus* result);
-  // Convenience method for listStatus with default options. The result ptr
+  // Convenience method for ListStatus with default options. The result ptr
   // will be set when Java API return a primitive types of List of URIStatus
-  Status listStatus(const std::string& path, std::vector<URIStatus>* result);
+  Status ListStatus(const std::string& path, std::vector<URIStatus>* result);
   // If the path is a directory, returns the URIStatus of all the direct
   // entries in it. Otherwise returns a list with a single URIStatus element
   // for the file
-  Status listStatus(const std::string& path, const ListStatusOptions& options,
+  Status ListStatus(const std::string& path, const ListStatusOptions& options,
                     std::vector<URIStatus>* result);
   // Mounts a UFS subtree to the given Alluxio path with default option
   Status mount(const std::string& alluxioPath, const std::string& ufsPath);
@@ -76,7 +76,7 @@ class FileSystem {
   Status mount(const std::string& alluxioPath, const std::string& ufsPath,
                const MountOptions& options);
   // Lists all mount points and their corresponding under storage addresses
-  Status getMountTable(std::map<std::string, MountPointInfo>* result);
+  Status GetMountTable(std::map<std::string, MountPointInfo>* result);
   // Opens a file for reading with default option. Sets a ptr to an allocated
   // FileInStream to inStream when Status::OK, return status code otherwise
   // without setting inStream
@@ -106,6 +106,7 @@ class FileSystem {
 
  private:
   jobject filesystem;
+  JniHelper::LocalRefMapType localRefs;
   jobject createAlluxioURI(const std::string& path);
   Status callJniBydefaultOption(const std::string& path,
                                 const std::string& methodName);

@@ -106,28 +106,6 @@ jstring JniHelper::SringToJstring(JNIEnv* env, const char* pat) {
   return (jstring)env->NewObject(strClass, ctorID, bytes, encoding);
 }
 
-std::string JniHelper:: JstringToString(jstring jstr) {
-  JNIEnv* env = JniHelper::GetEnv();
-  char* rtn = NULL;
-  jclass clsString = env->FindClass("java/lang/String");
-  jstring stringCode = env->NewStringUTF("GB2312");
-  jmethodID mid = env->GetMethodID(clsString, "getBytes",
-                                   "(Ljava/lang/String;)[B");
-  jbyteArray byteArray = (jbyteArray)env->CallObjectMethod(jstr, mid,
-                                                           stringCode);
-  jsize byteArrayLength = env->GetArrayLength(byteArray);
-  jbyte* bArray = env->GetByteArrayElements(byteArray, JNI_FALSE);
-  if (byteArrayLength > 0) {
-    rtn = (char*)malloc(byteArrayLength + 1);
-    memcpy(rtn, bArray, byteArrayLength);
-    rtn[byteArrayLength] = 0;
-  }
-  env->ReleaseByteArrayElements(byteArray, bArray, 0);
-  std::string stemp(rtn);
-  free(rtn);
-  return stemp;
-}
-
 jstring JniHelper::Convert(LocalRefMapType& localRefs, JniMethodInfo& t,
                            const char* x) {
   jstring ret =JniHelper::SringToJstring(t.env, x);
@@ -140,16 +118,6 @@ jstring JniHelper::Convert(LocalRefMapType& localRefs, JniMethodInfo& t,
   jstring ret =JniHelper::SringToJstring(t.env, x.c_str());
   localRefs[t.env].push_back(ret);
   return ret;
-}
-
-void JniHelper::DeleteLocalRefs(JNIEnv* env, LocalRefMapType& localRefs) {
-  if (! env) {
-    return;
-  }
-  for (const auto& ref : localRefs[env]) {
-    env->DeleteLocalRef(ref);
-  }
-  localRefs[env].clear();
 }
 
 void JniHelper::ReportError(const std::string& className,
@@ -168,7 +136,7 @@ std::string ClassCache::getClassName(jobject obj) {
     return (std::string)itr->second;
   } else {
     const std::string className =  JniHelper::GetObjectClassName(obj);
-   // CacheClassName(obj, className);
+    //CacheClassName(obj, className);
     return "L" + className + ";";
   }
 }
@@ -219,7 +187,7 @@ ClassCache::~ClassCache() {
   std::map<const char*, jclass>::iterator it;
   for (it = classNameToJclassMap.begin(); it != classNameToJclassMap.end();
       it ++) {
-    jclass cls = (jclass) it->second;
+    jclass cls = (jclass)it->second;
     if (cls != NULL) {
       env->DeleteGlobalRef(cls);
     }
@@ -227,7 +195,7 @@ ClassCache::~ClassCache() {
    std::map<jobject, const std::string>::iterator iter;
   for (iter = objectToTypeNameMap.begin(); iter != objectToTypeNameMap.end();
       iter ++) {
-    jobject cls = (jobject) iter->first;
+    jobject cls = (jobject)iter->first;
     if (cls != NULL) {
       env->DeleteGlobalRef(cls);
     }

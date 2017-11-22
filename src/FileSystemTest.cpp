@@ -50,7 +50,8 @@ void DeletePathTest(FileSystem* fileSystem, const char* path) {
 
 void ExistTest(FileSystem* fileSystem, const char* path) {
   std::cout << "TEST -  EXIST: " << std::endl ;
-  Status status = fileSystem->DeletePath(path);
+  bool* res;
+  Status status = fileSystem->Exists(path, res);
   if (status.ok()) {
     std::cout << "SUCCESS -  exist  " << path << std::endl;
   } else {
@@ -82,6 +83,33 @@ void FreeTest(FileSystem* fileSystem, const char* path) {
   }
 }
 
+void GetStatusTest(FileSystem* fileSystem, const char* path) {
+  URIStatus* result;
+  std::cout << "TEST -  GET STATUS: " << std::endl;
+  Status status = fileSystem->GetStatus(path, result);
+  if (status.ok()) {
+    std::cout << "SUCCESS -  GET STATUS  " << path << std::endl;
+  } else {
+    std::cout << "FAILED - GET STATUS " << path << ";  REASION: " <<
+        status.ToString() << std::endl;
+  }
+}
+
+void ListStatusTest(FileSystem* fileSystem, const char* path) {
+  std::vector<URIStatus> result;
+  std::cout << "TEST -  LIST STATUS: " << std::endl;
+  Status status = fileSystem->ListStatus(path, &result);
+  if (status.ok()) {
+    std::cout << "SUCCESS -  LIST STATUS  " << path << std::endl;
+    for (int i = 0 ; i < result.size(); i ++) {
+      std::cout << result[i].ToString() << std::endl;
+    }
+  } else {
+    std::cout << "FAILED -  LIST STATUS " << path << ";  REASION: " <<
+        status.ToString() << std::endl;
+  }
+}
+
 void MountTest(FileSystem* fileSystem, const char* srcPath,
                const char* dirPath) {
   std::cout << "TEST -  MOUNT: " << std::endl;
@@ -95,12 +123,32 @@ void MountTest(FileSystem* fileSystem, const char* srcPath,
 }
 
 void UnmountTest(FileSystem* fileSystem, const char* path) {
-  std::cout  << "TEST -  MOUNT: " << std::endl;
+  std::cout  << "TEST -  UNMOUNT: " << std::endl;
   Status status = fileSystem->Unmount(path);
   if (status.ok()) {
     std::cout << "SUCCESS -  unmount  " << path << std::endl;
   } else {
     std::cout << "FAILED -  unmount " << path << ";  REASION: " <<
+        status.ToString() << std::endl;
+  }
+}
+
+void GetMountTableTest(FileSystem* fileSystem) {
+  std::cout << "TEST -  GET MOUNTTABLE: " << std::endl;
+  std::map<std::string, MountPointInfo> result;
+  Status status = fileSystem->GetMountTable(&result);
+  if (status.ok()) {
+    std::cout << "SUCCESS -  GET MOUNTTABLE  " << std::endl;
+    std::map<std::string, MountPointInfo>::iterator it;
+  for (it = result.begin(); it != result.end();
+      it ++) {
+      std::string key = (std::string)it->first;
+      MountPointInfo value = (MountPointInfo)it->second;
+      std::cout << "key: " << key << std::endl;;
+      std::cout <<  "value" << value.ToString() << std::endl;
+  }
+  } else {
+    std::cout << "FAILED -  GET MOUNTTABLE " << ";  REASION: " <<
         status.ToString() << std::endl;
   }
 }
@@ -127,25 +175,9 @@ void SetAttributeTest(FileSystem* fileSystem, const char* path)  {
         status.ToString() << std::endl;
   }
 }
+
 int main(void) {
    FileSystem* fileSystem = new FileSystem();
-   FileInStream* in;
-for(int i = 0 ;i <1000; i ++) {
-CreateDirectoryTest(fileSystem, "/ee");
-RenameTest(fileSystem, "/ee", "/w2w");
-DeletePathTest(fileSystem, "/w2w");
-
-}
-   fileSystem->OpenFile("/test", &in);
-  char*r = new char[15];
-
-  size_t*res;
-  in->Read(r,6,83,res);
- //std::cout<<r<<std::endl;
- fileSystem->closeFileSystem();
-
-
-
-
-  return 0;
+GetMountTableTest(fileSystem);
+   return 0;
 }
